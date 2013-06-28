@@ -104,7 +104,6 @@ class MainWindow(wx.Frame):
         mem.Blit(0, 0, size[0], size[1], screen, 0, 0)
         self.bmp = self.bmp.GetSubBitmap(wx.RectPS([0,0],[800,600]))
         
-    	
     	# Joystick
         pygame.event.pump()
 
@@ -140,7 +139,6 @@ class MainWindow(wx.Frame):
         #img = wx.EmptyImage(320,240)
         #img.SetData( image_r.tostring() )
         #self.image_widget.SetBitmap( wx.BitmapFromImage(img) )
-        
         
         # stop drawing if recording to avoid slow downs
         if self.recording == False:
@@ -216,6 +214,14 @@ class MainWindow(wx.Frame):
                 # no dir so make one
                 else:
                     os.mkdir(self.outputDir)
+        
+        else: # not recording
+            if self.t > 0: # just finished recording
+                 info = open(self.outputDir+'/'+'info.txt', 'w')   
+                 info.write('info.txt\n')
+                 info.write(str(0)+'\n')
+                 info.write(str(self.t)+'\n')
+                 info.close()
         
         # un pause timer
         self.timer.Start(self.rate)
