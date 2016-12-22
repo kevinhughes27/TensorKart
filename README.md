@@ -1,12 +1,6 @@
 MarioKartAI
 ===========
 
-ToDo
-----
-* finish train.py with TensorFlow
-* implement play.py
-
-
 Dependencies
 ------------
 * `python` and `pip` then run `pip install -r requirements.txt`
@@ -31,3 +25,42 @@ Note - the GUI will stop updating while recording to avoid any slow downs.
 Viewing Samples
 ---------------
 Run `python viewer.py samples/luigi_raceway` to view the samples
+
+
+Preparing Training Data
+-----------------------
+
+The `prepare.py` script takes an array of sample directories as arguments and builds an `X` and `y` matrix for training.
+
+`X` is a 2-Dimensional array where each row is a flattened image. (each cell is therefore a unsigned int)
+
+`y` is the expected joystick ouput as an array:
+
+```
+  [0] joystick x axis
+  [1] joystick y axis
+  [2] button a
+  [3] button b
+  [4] button rb
+```
+
+
+Training
+--------
+* finish train.py with TensorFlow
+
+
+Play
+----
+* load model
+* acquire screenshot and send to tensorflow
+* send the output from tensorflow as the joystick input
+
+
+Does it Generalize?
+-------------------
+* The network should be able to replay a level since at this point its can be overfitted and pretty much rememeber a sequence of commands.
+  * That is unless it gets stuck and drives off the course and can't get back
+  * If this happens the first thing to try is record samples at a higher frequency
+* Train on several levels of Mario Kart
+* Try it on a new level and see what it does.
