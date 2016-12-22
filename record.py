@@ -8,6 +8,7 @@ import shutil
 import wx
 import matplotlib
 matplotlib.use('WXAgg')
+from datetime import datetime
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_wxagg import FigureCanvasWxAgg as FigCanvas
 
@@ -21,23 +22,10 @@ class MainWindow(wx.Frame):
         wx.Frame.__init__(self, None, title=self.title, size=(660,330))
 
         # Init controller
-        try:
-            pygame.init()
-            self.joystick = pygame.joystick.Joystick(0)
-            self.joystick.init()
-        except:
-            print 'unable to connect to Xbox Controller'
-
-        # Init Camera
-        # try:
-        #     self.cam = cv2.VideoCapture(0)
-        # except:
-        #     print 'unable to connect to camera'
+        self.init_joystick()
 
          # Create GUI
         self.create_main_panel()
-
-        self.recording = False
 
         # Timer
         self.timer = wx.Timer(self)
@@ -45,28 +33,40 @@ class MainWindow(wx.Frame):
         self.rate = 500
         self.timer.Start(self.rate)
 
+        self.recording = False
+
+
+    def init_joystick(self):
+        try:
+            pygame.init()
+            self.joystick = pygame.joystick.Joystick(0)
+            self.joystick.init()
+        except:
+            print 'unable to connect to Xbox Controller'
+
 
     def create_main_panel(self):
-
         # Panels
         self.img_panel = wx.Panel(self)
         self.joy_panel = wx.Panel(self)
         self.record_panel = wx.Panel(self)
 
         # Images
-        img = wx.EmptyImage(320,240)
-        self.image_widget = wx.StaticBitmap(self.img_panel, wx.ID_ANY, wx.BitmapFromImage(img))
+        img = wx.Image(320,240)
+        self.image_widget = wx.StaticBitmap(self.img_panel, wx.ID_ANY, wx.Bitmap(img))
 
         # Joystick
         self.init_plot()
         self.PlotCanvas = FigCanvas(self.joy_panel, wx.ID_ANY, self.fig)
 
         # Recording
-        self.btn_record = wx.Button(self.record_panel, wx.ID_ANY, label="Record", pos=(500,20), size=(100,30))
+        self.txt_outputDir = wx.TextCtrl(self.record_panel, wx.ID_ANY, pos=(5,0), size=(320,30))
+        uid = datetime.now().strftime('%Y-%m-%d_%H:%M:%S')
+        self.txt_outputDir.ChangeValue("samples/" + uid)
+
+        self.btn_record = wx.Button(self.record_panel, wx.ID_ANY, label="Record", pos=(335,0), size=(100,30))
         self.Bind(wx.EVT_BUTTON, self.on_btn_record, self.btn_record)
         self.Bind(wx.EVT_UPDATE_UI, self.on_update_btn_record, self.btn_record)
-
-        self.txt_outputDir = wx.TextCtrl(self.record_panel, wx.ID_ANY, pos=(0,20), size=(440,30))
 
         # sizers
         sizer = wx.BoxSizer(wx.HORIZONTAL)
@@ -91,80 +91,73 @@ class MainWindow(wx.Frame):
         self.axes = self.fig.add_subplot(111)
 
 
+    def on_timer(self, event):
+        self.poll()
+
+        # stop drawing if recording to avoid slow downs
+        if self.recording == False:
+            self.draw()
+
+
     def poll(self):
+        self.take_screenshot()
+        self.read_joystick()
+        self.update_plot()
 
-        # Image
-        # flag, self.image = self.cam.read()
+        if self.recording == True:
+            self.save_data()
 
-        # test
-        # self.image = np.zeros((480,640,3),np.uint8)
 
+    def take_screenshot(self):
         screen = wx.ScreenDC()
         size = screen.GetSize()
-        self.bmp = wx.EmptyBitmap(size[0], size[1])
+        self.bmp = wx.Bitmap(size[0], size[1])
         mem = wx.MemoryDC(self.bmp)
         mem.Blit(0, 0, size[0], size[1], screen, 0, 0)
-        self.bmp = self.bmp.GetSubBitmap(wx.RectPS([0,0],[800,600]))
+        self.bmp = self.bmp.GetSubBitmap(wx.Rect([0,0],[800,600]))
 
-        # Joystick
+
+    def read_joystick(self):
         pygame.event.pump()
-
         self.x = self.joystick.get_axis(0)
         self.y = self.joystick.get_axis(1)
         self.a = self.joystick.get_button(0)
         self.b = self.joystick.get_button(2) # b=1, x=2
         self.rb = self.joystick.get_button(5)
 
-        # test
-        # self.x = float(np.random.rand(1))
-        # self.y = float(np.random.rand(1))
-        # self.a = float(np.random.randint(0,2,1))
-        # self.b = float(np.random.randint(0,2,1))
 
-        self.plotData.append([self.x,self.y,self.a,self.b,self.rb]) #adds to the end of the list
+    def update_plot(self):
+        self.plotData.append([self.x,self.y,self.a,self.b,self.rb]) # adds to the end of the list
         self.plotData.pop(0) # remove the first item in the list, ie the oldest
 
-        if self.recording == True:
-            self.bmp.SaveFile(self.outputDir+'/'+'img_'+str(self.t)+'.png', wx.BITMAP_TYPE_PNG)
 
-            # make / open outfile
-            outfile = open(self.outputDir+'/'+'joystick.csv', 'a')
-            outfile.write( str(self.t)+','+str(self.x)+','+str(self.y)+','+str(self.a)+','+str(self.b)+','+str(self.rb)+'\n' )
-            outfile.close()
+    def save_data(self):
+        self.bmp.SaveFile(self.outputDir+'/'+'img_'+str(self.t)+'.png', wx.BITMAP_TYPE_PNG)
 
-            self.t += 1
+        # make / open outfile
+        outfile = open(self.outputDir+'/'+'joystick.csv', 'a')
+        outfile.write( str(self.t)+','+str(self.x)+','+str(self.y)+','+str(self.a)+','+str(self.b)+','+str(self.rb)+'\n' )
+        outfile.close()
+
+        self.t += 1
 
 
     def draw(self):
+        # Image
+        img = self.bmp.ConvertToImage()
+        img = img.Rescale(320,240)
+        self.image_widget.SetBitmap( img.ConvertToBitmap() )
 
-        # test
-        # image_r = cv2.resize( self.image, (320,240) )
-        # img = wx.EmptyImage(320,240)
-        # img.SetData( image_r.tostring() )
-        # self.image_widget.SetBitmap( wx.BitmapFromImage(img) )
-
-        # stop drawing if recording to avoid slow downs
-        if self.recording == False:
-
-            img = wx.ImageFromBitmap(self.bmp)
-            img = img.Rescale(320,240)
-            self.image_widget.SetBitmap( img.ConvertToBitmap() )
-
-            # Joystick
-            x = np.asarray(self.plotData)
-            self.axes.plot(range(0,self.plotMem), x[:,0], 'r')
-            self.axes.hold(True)
-            self.axes.plot(range(0,self.plotMem), x[:,1], 'b')
-            self.axes.plot(range(0,self.plotMem), x[:,2], 'g')
-            self.axes.plot(range(0,self.plotMem), x[:,3], 'k')
-            self.axes.plot(range(0,self.plotMem), x[:,4], 'y')
-            self.axes.hold(False)
-            self.PlotCanvas.draw()
-
-
-    def on_timer(self, event):
-        self.poll()
-        self.draw()
+        # Joystick
+        x = np.asarray(self.plotData)
+        self.axes.plot(range(0,self.plotMem), x[:,0], 'r')
+        self.axes.hold(True)
+        self.axes.plot(range(0,self.plotMem), x[:,1], 'b')
+        self.axes.plot(range(0,self.plotMem), x[:,2], 'g')
+        self.axes.plot(range(0,self.plotMem), x[:,3], 'k')
+        self.axes.plot(range(0,self.plotMem), x[:,4], 'y')
+        self.axes.hold(False)
+        self.PlotCanvas.draw()
 
 
     def on_update_btn_record(self, event):
@@ -173,7 +166,6 @@ class MainWindow(wx.Frame):
 
 
     def on_btn_record(self, event):
-
         # pause timer
         self.timer.Stop()
 
@@ -188,9 +180,8 @@ class MainWindow(wx.Frame):
         # un pause timer
         self.timer.Start(self.rate)
 
-        return
 
-    def start_recording():
+    def start_recording(self):
         # check that a dir has been specified
         if self.txt_outputDir.IsEmpty():
 
@@ -230,7 +221,7 @@ class MainWindow(wx.Frame):
                 os.mkdir(self.outputDir)
 
 
-    def finish_recording():
+    def finish_recording(self):
         if self.t > 0: # just finished recording
             info = open(self.outputDir+'/'+'info.txt', 'w')
             info.write('info.txt\n')
@@ -240,7 +231,6 @@ class MainWindow(wx.Frame):
 
 
     def on_exit(self, event):
-        self.cam.release()
         pygame.exit()
         self.Destroy()
 
