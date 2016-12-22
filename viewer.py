@@ -1,47 +1,53 @@
 #!/usr/bin/env python
 
 import sys
-import cv2
+import json
+import time
 import numpy as np
 import matplotlib.pyplot as plt
+import matplotlib.image as mpimg
 
 def main():
-
     if len(sys.argv) != 2:
         print 'Usage: python viewer.py <data_folder>'
+        return
 
     dataDir = sys.argv[1]
-
     if dataDir[-1] != '/':
-        dataDir+='/'
+        dataDir += '/'
 
-    info = open(dataDir+'info.txt')
-    info.readline()
-    start = int(info.readline())
-    end = int(info.readline())
-
-    vid = cv2.VideoCapture()
-    vid.open(dataDir+'img_%0d.png')
-    vid.set(cv2.cv.CV_CAP_PROP_POS_FRAMES, start)
+    # load dataset info
+    with open(dataDir+'info.json') as data_file:
+        data = json.load(data_file)
+        start = data['start']
+        end = data['end']
 
     joystickVals = np.loadtxt(dataDir+'joystick.csv', delimiter=',')[start:-1,1:]
+    plotData = []
+
+    plt.ion()
+    plt.figure('viewer', figsize=(16, 6))
 
     i = start
-    plotData = []
-    plt.ion()
-    fig = plt.Figure()
-    ax = fig.add_subplot(111)
     while(i <= end):
 
         # joystick
         print i, " ", joystickVals[i-start,:]
 
-        # plot
+        # format data
         plotData.append( joystickVals[i-start,:] )
         if len(plotData) > 30:
             plotData.pop(0)
         x = np.asarray(plotData)
 
+        # image
+        plt.subplot(121)
+        image_file = dataDir+"img_%i.png" % (i)
+        img = mpimg.imread(image_file)
+        plt.imshow(img)
+
+        # plot
+        plt.subplot(122)
         plt.plot(range(i,i+len(plotData)), x[:,0], 'r')
         plt.hold(True)
         plt.plot(range(i,i+len(plotData)), x[:,1], 'b')
@@ -51,12 +57,7 @@ def main():
         plt.draw()
         plt.hold(False)
 
-        #image
-        flag, frame = vid.read()
-        cv2.imshow("frame", frame)
-
-        cv2.waitKey(30)
-
+        plt.pause(0.5)
         i += 1
 
     return

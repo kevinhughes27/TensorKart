@@ -5,6 +5,7 @@ import numpy as np
 import pygame
 import os
 import shutil
+import json
 import wx
 import matplotlib
 matplotlib.use('WXAgg')
@@ -34,7 +35,7 @@ class MainWindow(wx.Frame):
         self.timer.Start(self.rate)
 
         self.recording = False
-
+        self.t = 0
 
     def init_joystick(self):
         try:
@@ -114,7 +115,7 @@ class MainWindow(wx.Frame):
         self.bmp = wx.Bitmap(size[0], size[1])
         mem = wx.MemoryDC(self.bmp)
         mem.Blit(0, 0, size[0], size[1], screen, 0, 0)
-        self.bmp = self.bmp.GetSubBitmap(wx.Rect([0,0],[800,600]))
+        self.bmp = self.bmp.GetSubBitmap(wx.Rect([0,0],[640,480]))
 
 
     def read_joystick(self):
@@ -192,7 +193,7 @@ class MainWindow(wx.Frame):
             self.recording = False
 
         else: # a directory was specified
-            self.outputDir = self.txt_outputDir.GetString(0,-1)
+            self.outputDir = self.txt_outputDir.GetValue()
             self.t = 0
 
             # check if path exists - ie may be saving over data
@@ -222,12 +223,11 @@ class MainWindow(wx.Frame):
 
 
     def finish_recording(self):
-        if self.t > 0: # just finished recording
-            info = open(self.outputDir+'/'+'info.txt', 'w')
-            info.write('info.txt\n')
-            info.write(str(0)+'\n')
-            info.write(str(self.t)+'\n')
-            info.close()
+        f = open(self.outputDir+'/'+'info.json', 'w')
+        f.write(json.dumps({
+            'start': 0,
+            'end': self.t
+        }))
 
 
     def on_exit(self, event):
