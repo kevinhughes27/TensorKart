@@ -29,7 +29,6 @@ Run `python viewer.py samples/luigi_raceway` to view the samples
 
 Preparing Training Data
 -----------------------
-
 The `prepare.py` script takes an array of sample directories as arguments and builds an `X` and `y` matrix for training.
 
 `X` is a 2-Dimensional array where each row is a flattened image. (each cell is therefore a unsigned int)
@@ -47,31 +46,41 @@ The `prepare.py` script takes an array of sample directories as arguments and bu
 
 Training
 --------
-* finish train.py with TensorFlow
+The `train.py` program will train a model using Google's TensorFlow framework and cuDNN for GPU acceleration. Training can take a while (~1 hour) depending on how much data you are training with. The program will save the model to disk when it is done.
 
 
 Play
 ----
-* load model
-  ```python
-  # ... other variables need to be setup still
-  saver = tf.train.Saver()
-  saver.restore(sess, "model.ckpt")
-  ```
-* acquire screenshot and send to tensorflow
-* send the output from tensorflow as the joystick input
+The `play.py` program will take screenshots of your desktop expecting the emulator to be in the top right corner again. These images will be sent to the model to acquire the joystick command to send.
+
+Note - you need to start `play.py` before the emulator so the fake joystick is registered on the system. Then the emulator needs to be started with `--configdir .` to use the config in this repo.
+
+current status:
+* the emulator is using this controller for player 1
+* the emulator does not respond to the inputs I send
+* `jstest-gtk` does respond to these inputs
+* `evtest` on my fake controller does not respond either
+
+* **Attempt to just script mario kart to get this working**
 
 
 Does it Generalize?
 -------------------
 * The network should be able to replay a level since at this point its can be overfitted and pretty much rememeber a sequence of commands.
   * That is unless it gets stuck and drives off the course and can't get back
-* Train on several levels of Mario Kart
-* Try it on a new level and see what it does.
+* Try it on a new level and see what it does. This is in place of a validation data set.
 
 
-Notes
------
-* I could also always pass the previous frame as part of the input. Or is this better solved with a different type of network
-* update record to use https://pypi.python.org/pypi/inputs (looks lighter weight than pygame)
+ToDo
+----
+* drop pygame and use https://pypi.python.org/pypi/inputs (looks lighter weight than pygame)
+* I could/should update my model to this one https://github.com/SullyChen/Autopilot-TensorFlow
+* refactor model code into a file or maybe into `utils`
+* possibly switch to https://keras.io/ (a nice wrapper on top of TensorFlow)
+
+* **simplify data recording for now to just the axis (aka steering angle predictor)**
+
+
+Future:
+-------
 * could also have a shadow mode where the AI just draws out what it would do rather than sending actions. A real self driving car would have this and use it a lot before letting it take the wheel.
