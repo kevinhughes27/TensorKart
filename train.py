@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 import tensorflow as tf
-from data import Data
+from utils import Data
 
 IMG_W = 320
 IMG_H = 240

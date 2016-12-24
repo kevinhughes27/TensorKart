@@ -1,6 +1,9 @@
 #!/usr/bin/env python
 
 import tensorflow as tf
+import time
+from utils import take_screenshot, prepare_image
+from utils import FakeController, XboxController
 
 IMG_W = 320
 IMG_H = 240
@@ -81,65 +84,27 @@ saver = tf.train.Saver()
 saver.restore(sess, "./model.ckpt")
 
 
-import numpy as np
-from skimage.color import rgb2gray
-import wx
-wx.App()
-
-
 # Play
-def take_screenshot():
-    screen = wx.ScreenDC()
-    size = screen.GetSize()
-    bmp = wx.Bitmap(size[0], size[1])
-    mem = wx.MemoryDC(bmp)
-    mem.Blit(0, 0, size[0], size[1], screen, 0, 0)
-    return bmp.GetSubBitmap(wx.Rect([0,0],[640,480]))
-
-
-# init joystick
-import uinput
-device = uinput.Device([
-    uinput.ABS_X,
-    uinput.ABS_Y,
-    uinput.BTN_SOUTH, # a
-    uinput.BTN_NORTH, # x
-    uinput.BTN_TR # rb
-])
-
-
-# button mappings determined using evtest
-def send_joystick(output):
-    import pdb; pdb.set_trace()
-
-    # I have to calibrate the driver
-    # my training data was between -1 and 1
-    # this is between different ranges
-
-    device.emit(uinput.ABS_X, output[0])
-    device.emit(uinput.ABS_Y, output[1])
-    device.emit(uinput.BTN_SOUTH, output[2])
-    device.emit(uinput.BTN_NORTH, output[3])
-    device.emit(uinput.BTN_TR, output[4])
-
-
-from skimage import transform
-
+fake_controller = FakeController()
+real_controller = XboxController()
 while True:
     ## Look
     bmp = take_screenshot()
-    buf = bmp.ConvertToImage().GetData()
-    image = np.frombuffer(buf, dtype='uint8')
-    image = image.reshape(480, 640, 3)
-    image = rgb2gray(image)
-    image = transform.resize(image, [IMG_H, IMG_W])
-    in_vec = image.flatten()
+    vec = prepare_image(bmp)
 
     ## Think
-    joystick_output = y_conv.eval(feed_dict={x: [in_vec], keep_prob: 1.0})[0]
+    joystick_output = y_conv.eval(feed_dict={x: [vec], keep_prob: 1.0})[0]
 
     ## Act
-    # need to make sure mupen64plus is listening to my fake controller input
-    send_joystick(joystick_output)
+    manual_override = real_controller.btn_b()
+    if (manual_override == 1):
+        print "Manual Override"
+        joystick_output = real_controller.read()
 
-    ## Shadow (display action but don't act)
+    # its not using my fake controller ...
+    # I can tell because with manual override I can
+    # use other buttons (that aren't mapped)
+
+    fake_controller.write(joystick_output)
+
+    time.sleep(0.1)

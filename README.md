@@ -74,3 +74,4 @@ Notes
 -----
 * I could also always pass the previous frame as part of the input. Or is this better solved with a different type of network
 * update record to use https://pypi.python.org/pypi/inputs (looks lighter weight than pygame)
+* could also have a shadow mode where the AI just draws out what it would do rather than sending actions. A real self driving car would have this and use it a lot before letting it take the wheel.

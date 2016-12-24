@@ -3,7 +3,8 @@
 import sys
 import json
 import numpy as np
-from scipy import misc
+from skimage.io import imread
+from utils import prepare_image
 
 IMG_W = 320
 IMG_H = 240
@@ -35,9 +36,9 @@ def main():
         # load, reshape and add images to X
         for i in range(start, end):
             image_file = sample+"img_%i.png" % (i)
-            image = misc.imread(image_file, flatten=True) # load grayscale
-            row = misc.imresize(image, (IMG_W, IMG_H)).flatten()
-            X.append(row)
+            image = imread(image_file)
+            vec = prepare_image(image)
+            X.append(vec)
 
         # add joystick values to y
         joystick_values = np.loadtxt(sample+'joystick.csv', delimiter=',')[start:end+1,1:]

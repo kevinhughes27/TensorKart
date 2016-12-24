@@ -1,8 +1,6 @@
 #!/usr/bin/env python
 
-#import cv2
 import numpy as np
-import pygame
 import os
 import shutil
 import json
@@ -12,6 +10,8 @@ matplotlib.use('WXAgg')
 from datetime import datetime
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_wxagg import FigureCanvasWxAgg as FigCanvas
+
+from utils import take_screenshot, XboxController
 
 SAMPLE_RATE = 100
 
@@ -25,7 +25,7 @@ class MainWindow(wx.Frame):
         wx.Frame.__init__(self, None, title=self.title, size=(660,330))
 
         # Init controller
-        self.init_joystick()
+        self.controller = XboxController()
 
          # Create GUI
         self.create_main_panel()
@@ -38,14 +38,6 @@ class MainWindow(wx.Frame):
 
         self.recording = False
         self.t = 0
-
-    def init_joystick(self):
-        try:
-            pygame.init()
-            self.joystick = pygame.joystick.Joystick(0)
-            self.joystick.init()
-        except:
-            print 'unable to connect to Xbox Controller'
 
 
     def create_main_panel(self):
@@ -103,34 +95,16 @@ class MainWindow(wx.Frame):
 
 
     def poll(self):
-        self.take_screenshot()
-        self.read_joystick()
+        self.bmp = take_screenshot()
+        self.controller_data = self.controller.read()
         self.update_plot()
 
         if self.recording == True:
             self.save_data()
 
 
-    def take_screenshot(self):
-        screen = wx.ScreenDC()
-        size = screen.GetSize()
-        self.bmp = wx.Bitmap(size[0], size[1])
-        mem = wx.MemoryDC(self.bmp)
-        mem.Blit(0, 0, size[0], size[1], screen, 0, 0)
-        self.bmp = self.bmp.GetSubBitmap(wx.Rect([0,0],[640,480]))
-
-
-    def read_joystick(self):
-        pygame.event.pump()
-        self.x = self.joystick.get_axis(0)
-        self.y = self.joystick.get_axis(1)
-        self.a = self.joystick.get_button(0)
-        self.b = self.joystick.get_button(2) # b=1, x=2
-        self.rb = self.joystick.get_button(5)
-
-
     def update_plot(self):
-        self.plotData.append([self.x,self.y,self.a,self.b,self.rb]) # adds to the end of the list
+        self.plotData.append(self.controller_data) # adds to the end of the list
         self.plotData.pop(0) # remove the first item in the list, ie the oldest
 
 
@@ -139,7 +113,7 @@ class MainWindow(wx.Frame):
 
         # make / open outfile
         outfile = open(self.outputDir+'/'+'joystick.csv', 'a')
-        outfile.write( str(self.t)+','+str(self.x)+','+str(self.y)+','+str(self.a)+','+str(self.b)+','+str(self.rb)+'\n' )
+        outfile.write( str(self.t)+',' + ','.join(self.controller_data) + '\n' )
         outfile.close()
 
         self.t += 1
@@ -233,7 +207,6 @@ class MainWindow(wx.Frame):
 
 
     def on_exit(self, event):
-        pygame.exit()
         self.Destroy()
 
 
