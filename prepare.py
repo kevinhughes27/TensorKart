@@ -35,7 +35,7 @@ def main():
         # load, reshape and add images to X
         for i in range(start, end):
             image_file = sample+"img_%i.png" % (i)
-            image = misc.imread(image_file)
+            image = misc.imread(image_file, flatten=True) # load grayscale
             row = misc.imresize(image, (IMG_W, IMG_H)).flatten()
             X.append(row)
 
@@ -44,11 +44,11 @@ def main():
         y.append(joystick_values)
 
     print "Saving to file..."
-    X = np.concatenate(X).reshape(len(X), IMG_W * IMG_H * 3)
+    X = np.concatenate(X).reshape(len(X), IMG_W * IMG_H)
     y = np.concatenate(y)
 
-    np.savez_compressed("data/X", X)
-    np.savez_compressed("data/y", y)
+    np.save("data/X", X)
+    np.save("data/y", y)
 
     print "Done!"
     return

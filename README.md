@@ -53,6 +53,11 @@ Training
 Play
 ----
 * load model
+  ```python
+  # ... other variables need to be setup still
+  saver = tf.train.Saver()
+  saver.restore(sess, "model.ckpt")
+  ```
 * acquire screenshot and send to tensorflow
 * send the output from tensorflow as the joystick input
 
@@ -61,6 +66,11 @@ Does it Generalize?
 -------------------
 * The network should be able to replay a level since at this point its can be overfitted and pretty much rememeber a sequence of commands.
   * That is unless it gets stuck and drives off the course and can't get back
-  * If this happens the first thing to try is record samples at a higher frequency
 * Train on several levels of Mario Kart
 * Try it on a new level and see what it does.
+
+
+Notes
+-----
+* I could also always pass the previous frame as part of the input. Or is this better solved with a different type of network
+* update record to use https://pypi.python.org/pypi/inputs (looks lighter weight than pygame)

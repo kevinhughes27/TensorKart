@@ -13,6 +13,8 @@ from datetime import datetime
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_wxagg import FigureCanvasWxAgg as FigCanvas
 
+SAMPLE_RATE = 100
+
 class MainWindow(wx.Frame):
     """ Main frame of the application
     """
@@ -31,7 +33,7 @@ class MainWindow(wx.Frame):
         # Timer
         self.timer = wx.Timer(self)
         self.Bind(wx.EVT_TIMER, self.on_timer, self.timer)
-        self.rate = 500
+        self.rate = SAMPLE_RATE
         self.timer.Start(self.rate)
 
         self.recording = False

@@ -57,7 +57,7 @@ def main():
         plt.draw()
         plt.hold(False)
 
-        plt.pause(0.5)
+        plt.pause(0.0001) # seconds
         i += 1
 
     return
