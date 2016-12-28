@@ -53,13 +53,18 @@ Play
 ----
 The `play.py` program will take screenshots of your desktop expecting the emulator to be in the top right corner again. These images will be sent to the model to acquire the joystick command to send.
 
-Note - you need to start `play.py` before the emulator so the fake joystick is registered on the system. Then the emulator needs to be started with `--configdir .` to use the config in this repo.
+Note - you need to start the emulator a custom input driver in order to pass the output from the AI to the emulator:
+
+```
+mupen64plus --input ~/src/mupen64plus-input-bot/mupen64plus-input-bot.so MarioKart64.z64
+```
 
 current status:
 * the emulator is using this controller for player 1
 * the emulator does not respond to the inputs I send
 * `jstest-gtk` does respond to these inputs
 * `evtest` on my fake controller does not respond either
+  * emit_click does showup in evtest
 
 * **Attempt to just script mario kart to get this working**
 

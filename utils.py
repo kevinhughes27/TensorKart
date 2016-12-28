@@ -1,5 +1,4 @@
 import pygame
-import uinput
 
 import wx
 wx.App()
@@ -33,37 +32,6 @@ def prepare_image(img):
     img = img.flatten()
 
     return img
-
-
-class FakeController:
-    def __init__(self):
-        self.device = uinput.Device([
-            uinput.ABS_X,
-            uinput.ABS_Y,
-            uinput.BTN_SOUTH, # a
-            uinput.BTN_NORTH, # x
-            uinput.BTN_TR # rb
-        ])
-
-    # button mappings determined using evtest
-    def write(self, output):
-        #print output
-
-        ## calibration
-        x_axis = int(output[0] * 32767)
-        y_axis = int(output[1] * 32767)
-        btn_a = int(round(output[2]))
-        btn_b = int(round(output[3]))
-        btn_rb = int(round(output[4]))
-
-        # print command
-        print [x_axis, y_axis, btn_a, btn_b, btn_rb]
-
-        self.device.emit(uinput.ABS_X, x_axis)
-        self.device.emit(uinput.ABS_Y, y_axis)
-        self.device.emit(uinput.BTN_SOUTH, btn_a)
-        self.device.emit(uinput.BTN_NORTH, btn_b)
-        self.device.emit(uinput.BTN_TR, btn_rb)
 
 
 class XboxController:

@@ -3,4 +3,4 @@ MarioKart64.z64
 *.pyc
 *.npy
 checkpoint
-model*
+model.ckpt*
