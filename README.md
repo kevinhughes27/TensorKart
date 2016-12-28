@@ -79,17 +79,7 @@ Does it Generalize?
 
 ToDo
 ----
-* drop pygame and use https://pypi.python.org/pypi/inputs (looks lighter weight than pygame)
-* I could/should update my model to this one https://github.com/SullyChen/Autopilot-TensorFlow
-* possibly switch to https://keras.io/ (a nice wrapper on top of TensorFlow)
-
-* I could simplify data recording to just the axis (aka steering angle predictor)
-
-* I am getting close to too much data to hold in memory
-
 * record new data using as much auto as possible - the idea being to get specific samples of me fixing the AI when it gets stuck
-
-* Mario raceway could be a good track
 
 * [he](https://github.com/SullyChen/Autopilot-TensorFlow) loads his batches sequentially. I wonder if this helps? It would be minimizing a logical sequence rather than a random one.
 
