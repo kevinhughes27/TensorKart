@@ -6,8 +6,6 @@ import numpy as np
 from skimage.io import imread
 from utils import prepare_image
 
-IMG_W = 320
-IMG_H = 240
 
 def main():
     if len(sys.argv) <= 2:
