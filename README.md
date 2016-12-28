@@ -81,7 +81,6 @@ ToDo
 ----
 * record new data using as much auto as possible - the idea being to get specific samples of me fixing the AI when it gets stuck
 
-* [he](https://github.com/SullyChen/Autopilot-TensorFlow) loads his batches sequentially. I wonder if this helps? It would be minimizing a logical sequence rather than a random one.
 
 Future:
 -------

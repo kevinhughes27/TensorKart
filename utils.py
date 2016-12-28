@@ -71,11 +71,6 @@ class Data(object):
         if self._index_in_epoch > self._num_examples:
             # Finished epoch
             self._epochs_completed += 1
-            # Shuffle the data
-            perm = np.arange(self._num_examples)
-            np.random.shuffle(perm)
-            self._X = self._X[perm]
-            self._y = self._y[perm]
             # Start next epoch
             start = 0
             self._index_in_epoch = batch_size

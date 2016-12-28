@@ -19,7 +19,7 @@ train_step = tf.train.AdamOptimizer(1e-4).minimize(loss)
 sess.run(tf.global_variables_initializer())
 
 # Train the Model
-for i in range(500000):
+for i in range(20000):
   batch = data.next_batch(100)
 
   if i%100 == 0:
