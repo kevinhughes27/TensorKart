@@ -34,9 +34,7 @@ class myHandler(BaseHTTPRequestHandler):
 
         ## Act
         ### manual override
-        manual_override = real_controller.btn_b()
-        print manual_override
-        if (manual_override == 1):
+        if (real_controller.manual_override()):
             print "Manual Override"
             joystick = real_controller.read()
             joystick[1] *= -1 # flip y (this is in the config when it runs normally)

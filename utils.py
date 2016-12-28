@@ -51,10 +51,9 @@ class XboxController:
         return [x, y, a, b, rb]
 
 
-    # used to toggle manual override for now
-    def btn_b(self):
+    def manual_override(self):
         pygame.event.pump()
-        return self.joystick.get_button(1)
+        return self.joystick.get_button(4) == 1
 
 
 class Data(object):
