@@ -16,10 +16,9 @@ Recording Samples
 3. Run `record.py`
 4. Make sure the graph responds to joystick input. It will look slow but that is because the sample rate is low on purpose.
 5. Position the emulator window so that the image is captured by the program
-
-Your window should look like this:
-
 6. Press record and play through a level. You can trim some samples off the front and back of the data you collect afterwards.
+
+![record](/screenshots/record_setup.png?raw=true)
 
 Note - the GUI will stop updating while recording to avoid any slow downs.
 
