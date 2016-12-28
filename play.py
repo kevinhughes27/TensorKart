@@ -39,6 +39,7 @@ class myHandler(BaseHTTPRequestHandler):
         if (manual_override == 1):
             print "Manual Override"
             joystick = real_controller.read()
+            joystick[1] *= -1 # flip y (this is in the config when it runs normally)
 
         ### calibration
         output = [

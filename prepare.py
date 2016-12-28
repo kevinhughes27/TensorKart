@@ -45,7 +45,7 @@ def main():
         y.append(joystick_values)
 
     print "Saving to file..."
-    X = np.concatenate(X).reshape(len(X), IMG_W * IMG_H)
+    X = np.asarray(X)
     y = np.concatenate(y)
 
     np.save("data/X", X)

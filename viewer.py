@@ -40,11 +40,12 @@ def main():
             plotData.pop(0)
         x = np.asarray(plotData)
 
-        # image
-        plt.subplot(121)
-        image_file = dataDir+"img_%i.png" % (i)
-        img = mpimg.imread(image_file)
-        plt.imshow(img)
+        # image (every 10th)
+        if (i % 10 == 0):
+            plt.subplot(121)
+            image_file = dataDir+"img_%i.png" % (i)
+            img = mpimg.imread(image_file)
+            plt.imshow(img)
 
         # plot
         plt.subplot(122)

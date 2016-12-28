@@ -7,8 +7,8 @@ import numpy as np
 from skimage.color import rgb2gray
 from skimage.transform import resize
 
-IMG_W = 320
-IMG_H = 240
+IMG_W = 200
+IMG_H = 66
 
 
 def take_screenshot():
@@ -25,11 +25,8 @@ def prepare_image(img):
         buf = img.ConvertToImage().GetData()
         img = np.frombuffer(buf, dtype='uint8')
 
-
     img = img.reshape(480, 640, 3)
-    img = rgb2gray(img)
     img = resize(img, [IMG_H, IMG_W])
-    img = img.flatten()
 
     return img
 

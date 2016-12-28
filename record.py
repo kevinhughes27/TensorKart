@@ -113,7 +113,7 @@ class MainWindow(wx.Frame):
 
         # make / open outfile
         outfile = open(self.outputDir+'/'+'joystick.csv', 'a')
-        outfile.write( str(self.t)+',' + ','.join(self.controller_data) + '\n' )
+        outfile.write( str(self.t)+',' + ','.join(map(str, self.controller_data)) + '\n' )
         outfile.close()
 
         self.t += 1
