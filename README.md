@@ -1,5 +1,7 @@
-MarioKartAI
-===========
+TensorKart
+==========
+
+self-driving MarioKart with TensorFlow
 
 Dependencies
 ------------
