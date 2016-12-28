@@ -65,6 +65,10 @@ class Data(object):
         self._index_in_epoch = 0
         self._num_examples = self._X.shape[0]
 
+    @property
+    def num_examples(self):
+        return self._num_examples
+
     def next_batch(self, batch_size):
         start = self._index_in_epoch
         self._index_in_epoch += batch_size

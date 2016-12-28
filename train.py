@@ -18,16 +18,22 @@ train_step = tf.train.AdamOptimizer(1e-4).minimize(loss)
 
 sess.run(tf.global_variables_initializer())
 
-# Train the Model
-for i in range(20000):
-  batch = data.next_batch(100)
+# Training loop variables
+epochs = 30
+batch_size = 100
+num_samples = data.num_examples
+step_size = int(num_samples / batch_size)
 
-  if i%100 == 0:
-    train_accuracy = loss.eval(feed_dict={model.x:batch[0], model.y_: batch[1], model.keep_prob: 1.0})
-    print("step: %d loss: %g"%(i, train_accuracy))
+for epoch in range(epochs):
+    for i in range(step_size):
+        batch = data.next_batch(100)
 
-  train_step.run(feed_dict={model.x: batch[0], model.y_: batch[1], model.keep_prob: 0.5})
+        train_step.run(feed_dict={model.x: batch[0], model.y_: batch[1], model.keep_prob: 0.8})
 
-# Save the Model
-saver = tf.train.Saver()
-saver.save(sess, "model.ckpt")
+        if i%10 == 0:
+          loss_value = loss.eval(feed_dict={model.x:batch[0], model.y_: batch[1], model.keep_prob: 1.0})
+          print("epoch: %d step: %d loss: %g"%(epoch, epoch * batch_size + i, loss_value))
+
+    saver = tf.train.Saver()
+    saver.save(sess, "model.ckpt")
+    print("model saved")
