@@ -3,7 +3,6 @@
 import numpy as np
 import os
 import shutil
-import json
 import wx
 import matplotlib
 matplotlib.use('WXAgg')
@@ -13,7 +12,7 @@ from matplotlib.backends.backend_wxagg import FigureCanvasWxAgg as FigCanvas
 
 from utils import take_screenshot, XboxController
 
-SAMPLE_RATE = 100
+SAMPLE_RATE = 200
 
 class MainWindow(wx.Frame):
     """ Main frame of the application
@@ -109,11 +108,14 @@ class MainWindow(wx.Frame):
 
 
     def save_data(self):
-        self.bmp.SaveFile(self.outputDir+'/'+'img_'+str(self.t)+'.png', wx.BITMAP_TYPE_PNG)
+        image_file = self.outputDir+'/'+'img_'+str(self.t)+'.png'
+        self.bmp.SaveFile(image_file, wx.BITMAP_TYPE_PNG)
 
         # make / open outfile
-        outfile = open(self.outputDir+'/'+'joystick.csv', 'a')
-        outfile.write( str(self.t)+',' + ','.join(map(str, self.controller_data)) + '\n' )
+        outfile = open(self.outputDir+'/'+'data.csv', 'a')
+
+        # write line
+        outfile.write( image_file + ',' + ','.join(map(str, self.controller_data)) + '\n' )
         outfile.close()
 
         self.t += 1
@@ -151,8 +153,6 @@ class MainWindow(wx.Frame):
 
         if self.recording:
             self.start_recording()
-        else:
-            self.finish_recording()
 
         # un pause timer
         self.timer.Start(self.rate)
@@ -196,14 +196,6 @@ class MainWindow(wx.Frame):
             # no directory so make one
             else:
                 os.mkdir(self.outputDir)
-
-
-    def finish_recording(self):
-        f = open(self.outputDir+'/'+'info.json', 'w')
-        f.write(json.dumps({
-            'start': 0,
-            'end': self.t
-        }))
 
 
     def on_exit(self, event):

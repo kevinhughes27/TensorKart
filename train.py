@@ -20,7 +20,7 @@ sess.run(tf.global_variables_initializer())
 
 # Training loop variables
 epochs = 100
-batch_size = 100
+batch_size = 50
 num_samples = data.num_examples
 step_size = int(num_samples / batch_size)
 

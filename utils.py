@@ -17,7 +17,7 @@ def take_screenshot():
     bmp = wx.Bitmap(size[0], size[1])
     mem = wx.MemoryDC(bmp)
     mem.Blit(0, 0, size[0], size[1], screen, 0, 0)
-    return bmp.GetSubBitmap(wx.Rect([0,0],[640,480]))
+    return bmp.GetSubBitmap(wx.Rect([0,0],[615,480]))
 
 
 def prepare_image(img):
@@ -25,7 +25,7 @@ def prepare_image(img):
         buf = img.ConvertToImage().GetData()
         img = np.frombuffer(buf, dtype='uint8')
 
-    img = img.reshape(480, 640, 3)
+    img = img.reshape(480, 615, 3)
     img = resize(img, [IMG_H, IMG_W])
 
     return img

@@ -16,12 +16,13 @@ Recording Samples
 3. Run `record.py`
 4. Make sure the graph responds to joystick input. It will look slow but that is because the sample rate is low on purpose.
 5. Position the emulator window so that the image is captured by the program
-6. Press record and play through a level. You can trim some samples off the front and back of the data you collect afterwards.
+6. Press record and play through a level. You can trim some samples off the front and back of the data you collect afterwards (by removing lines in `data.csv`).
 
 ![record](/screenshots/record_setup.png?raw=true)
 
-Note - the GUI will stop updating while recording to avoid any slow downs.
-
+Notes
+- the GUI will stop updating while recording to avoid any slow downs.
+- double check the samples, sometimes the screenshot is the desktop instead. Remove the appropriate lines from the `data.csv` file
 
 Viewing Samples
 ---------------
@@ -70,18 +71,13 @@ current status:
 * **Attempt to just script mario kart to get this working**
 
 
-Does it Generalize?
--------------------
-* The network should be able to replay a level since at this point its can be overfitted and pretty much rememeber a sequence of commands.
-  * That is unless it gets stuck and drives off the course and can't get back
-* Try it on a new level and see what it does. This is in place of a validation data set.
-
-
-ToDo
-----
-* record new data using as much auto as possible - the idea being to get specific samples of me fixing the AI when it gets stuck
-
-
-Future:
--------
+Future Work / Ideas:
+--------------------
 * could also have a shadow mode where the AI just draws out what it would do rather than sending actions. A real self driving car would have this and use it a lot before letting it take the wheel.
+* Add a reinforcement layer based on lap time or other metrics so that the AI can start to teach itself now that it has a baseline
+* Deep learning is all about data perhaps a community could form around collecting a large amount of data and pushing the performance of this AI
+
+
+Contributing
+------------
+Open a PR! I promise I am friendly :)
