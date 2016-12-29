@@ -5,6 +5,7 @@ from utils import take_screenshot, prepare_image
 from utils import XboxController
 import tensorflow as tf
 import model
+from termcolor import cprint
 
 PORT_NUMBER = 8082
 
@@ -34,8 +35,9 @@ class myHandler(BaseHTTPRequestHandler):
 
         ## Act
         ### manual override
-        if (real_controller.manual_override()):
-            print "Manual Override"
+        manual_override = real_controller.manual_override()
+
+        if (manual_override):
             joystick = real_controller.read()
             joystick[1] *= -1 # flip y (this is in the config when it runs normally)
 
@@ -48,12 +50,16 @@ class myHandler(BaseHTTPRequestHandler):
             int(round(joystick[4])),
         ]
 
+        ### print to console
+        if (manual_override):
+            cprint("Manual: " + str(output), 'yellow')
+        else:
+            cprint("AI: " + str(output), 'green')
+
         ### respond with action
         self.send_response(200)
         self.send_header("Content-type", "text/plain")
         self.end_headers()
-
-        print output
         self.wfile.write(output)
         return
 
