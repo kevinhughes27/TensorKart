@@ -43,12 +43,12 @@ Notes
 
 Viewing Samples
 ---------------
-Run `python viewer.py samples/luigi_raceway` to view the samples
+Run `python utils.py viewer samples/luigi_raceway` to view the samples
 
 
 Preparing Training Data
 -----------------------
-The `prepare.py` script takes an array of sample directories as arguments and builds an `X` and `y` matrix for training. (zsh will expand samples/* to all the directories. Passing a glob directly also works)
+Run `python utils.py prepare samples/*` with an array of sample directories to build an `X` and `y` matrix for training. (zsh will expand samples/* to all the directories. Passing a glob directly also works)
 
 `X` is a 3-Dimensional array of images
 
