@@ -13,7 +13,7 @@ Driving Luigi Raceway:
 
 The model was trained with:
 * 4 races on Luigi Raceway
-* 2 races on Kalimar Desert
+* 2 races on Kalimari Desert
 * 2 races on Mario Raceway
 
 With even a small training set the model is sometimes able to generalize to a new track (Royal Raceway seen above).
