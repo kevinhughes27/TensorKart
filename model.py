@@ -76,7 +76,7 @@ h_fc3 = tf.nn.relu(tf.matmul(h_fc2_drop, W_fc3) + b_fc3)
 
 h_fc3_drop = tf.nn.dropout(h_fc3, keep_prob)
 
-#FCL 3
+#FCL 4
 W_fc4 = weight_variable([50, 10])
 b_fc4 = bias_variable([10])
 
