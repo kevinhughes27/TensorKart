@@ -46,8 +46,8 @@ class MainWindow(wx.Frame):
         self.record_panel = wx.Panel(self)
 
         # Images
-        img = wx.Image(320,240)
-        self.image_widget = wx.StaticBitmap(self.img_panel, wx.ID_ANY, wx.Bitmap(img))
+        img = wx.EmptyBitmap(320,240)
+        self.image_widget = wx.StaticBitmap(self.img_panel, wx.ID_ANY, img)
 
         # Joystick
         self.init_plot()
@@ -125,7 +125,7 @@ class MainWindow(wx.Frame):
         # Image
         img = self.bmp.ConvertToImage()
         img = img.Rescale(320,240)
-        self.image_widget.SetBitmap( img.ConvertToBitmap() )
+        self.image_widget.SetBitmap(self.bmp)
 
         # Joystick
         x = np.asarray(self.plotData)
@@ -203,6 +203,7 @@ class MainWindow(wx.Frame):
 
 
 if __name__ == '__main__':
+
     app = wx.App()
     app.frame = MainWindow()
     app.frame.Show()
