@@ -15,22 +15,20 @@ from skimage.io import imread
 import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
 
-import pyscreenshot as ImageGrab
-
 
 IMG_W = 200
 IMG_H = 66
 
 
 def take_screenshot():
-    s = wx.ScreenDC()
-    w, h = s.Size.Get()
-    b = wx.EmptyBitmap(w, h)
-    m = wx.MemoryDCFromDC(s)
-    m.SelectObject(b)
-    m.Blit(0, 0, w, h, s, 0, 0)
-    m.SelectObject(wx.NullBitmap)
-    return b.GetSubBitmap(wx.Rect(10,60,615,480))
+    screen = wx.ScreenDC()
+    w, h = screen.Size.Get()
+    bmp = wx.EmptyBitmap(w, h)
+    mem = wx.MemoryDCFromDC(screen)
+    mem.SelectObject(bmp)
+    mem.Blit(0, 0, w, h, screen, 0, 0)
+    mem.SelectObject(wx.NullBitmap)
+    return bmp.GetSubBitmap(wx.Rect(10,60,615,480))
 
 
 def prepare_image(img):
