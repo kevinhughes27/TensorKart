@@ -67,8 +67,8 @@ class XboxController:
 
 class Data(object):
     def __init__(self, path):
-        self._X = np.load("data/X.npy")
-        self._y = np.load("data/y.npy")
+        self._X = np.load(path + "/X.npy")
+        self._y = np.load(path + "/y.npy")
         self._epochs_completed = 0
         self._index_in_epoch = 0
         self._num_examples = self._X.shape[0]
@@ -89,6 +89,9 @@ class Data(object):
             assert batch_size <= self._num_examples
         end = self._index_in_epoch
         return self._X[start:end], self._y[start:end]
+
+    def ret_n(self, n):
+        return self._X[0:n], self._y[0:n]
 
 
 def load_sample(sample):
