@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-
+#
 from BaseHTTPServer import BaseHTTPRequestHandler, HTTPServer
 from utils import take_screenshot, prepare_image
 from utils import XboxController
