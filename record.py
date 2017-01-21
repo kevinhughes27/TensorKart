@@ -56,7 +56,7 @@ class MainWindow(wx.Frame):
         # Recording
         self.txt_outputDir = wx.TextCtrl(self.record_panel, wx.ID_ANY, pos=(5,0), size=(320,30))
         uid = datetime.now().strftime('%Y-%m-%d_%H:%M:%S')
-        self.txt_outputDir.ChangeValue("samples/" + uid)
+        self.txt_outputDir.ChangeValue("samples/train/" + uid)
 
         self.btn_record = wx.Button(self.record_panel, wx.ID_ANY, label="Record", pos=(335,0), size=(100,30))
         self.Bind(wx.EVT_BUTTON, self.on_btn_record, self.btn_record)
