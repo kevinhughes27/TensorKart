@@ -6,6 +6,7 @@ from utils import XboxController
 import tensorflow as tf
 import model
 from termcolor import cprint
+import numpy as np
 
 PORT_NUMBER = 8082
 
@@ -33,6 +34,27 @@ class myHandler(BaseHTTPRequestHandler):
         ## Think
         joystick = model.y.eval(feed_dict={model.x: [vec], model.keep_prob: 1.0})[0]
 
+
+        ### Pre-process the controls
+        #### There is a bias to drive straight so multiply x axis by a multiplier
+        x_mult = 2
+        joystick[0] = max(min(joystick[0] * x_mult, 1), -1)
+
+        #### Convert button pushes to 'probabilities' then sample 0/1
+        #### use some version of 1/(1 + np.exp(-joystick[n])) instead?
+        #### button 5 should be left trigger eventually (mod the plugin)
+        p2 = max(min(joystick[2], 1), 0)
+        joystick[2] = np.random.choice(a = [0,1], p = [1-p2, p2])
+
+        p3 = max(min(joystick[3], 1), 0)
+        joystick[3] = np.random.choice(a = [0,1], p = [1-p3, p3])
+
+        p4 = max(min(joystick[4], 1), 0)
+        joystick[4] = np.random.choice(a = [0,1], p = [1-p4, p4])
+
+        #p5 = max(min(joystick[5], 1), 0)
+        #joystick[5] = np.random.choice(a = [0,1], p = [1-p5, p5])
+
         ## Act
         ### manual override
         manual_override = real_controller.manual_override()
@@ -45,16 +67,17 @@ class myHandler(BaseHTTPRequestHandler):
         output = [
             int(joystick[0] * 80),
             int(joystick[1] * 80),
-            int(round(joystick[2])),
-            int(round(joystick[3])),
-            int(round(joystick[4])),
+            int(joystick[2]),
+            int(joystick[3]),
+            int(joystick[4]),
+            #int(round(joystick[5])),
         ]
 
         ### print to console
         if (manual_override):
             cprint("Manual: " + str(output), 'yellow')
         else:
-            cprint("AI: " + str(output), 'green')
+            cprint("AI: " + str(output) + str(p2), 'green')
 
         ### respond with action
         self.send_response(200)
