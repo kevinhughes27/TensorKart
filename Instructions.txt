@@ -1,0 +1,133 @@
+########################################
+### Prepare system (Linux Mint 18.1) ###
+########################################
+
+### Step 1: Create Project Directory
+mkdir TKproj
+cd TKproj
+
+
+### Step 2: Clone sources from github
+git clone https://github.com/kevinhughes27/TensorKart.git
+git clone https://github.com/kevinhughes27/mupen64plus-input-bot.git
+git clone https://github.com/mupen64plus/mupen64plus-core.git
+git clone https://github.com/mupen64plus/mupen64plus-input-sdl.git
+
+
+### Step 3: Install dependancies
+sudo apt-get install dpkg-dev build-essential swig python2.7-dev libwebkitgtk-dev libjpeg-dev libtiff-dev checkinstall ubuntu-restricted-extras freeglut3 freeglut3-dev libgtk2.0-dev  libsdl1.2-dev libgstreamer-plugins-base0.10-dev 
+
+sudo apt install python-pip
+sudo pip install --upgrade pip
+sudo pip install -U pip setuptools
+sudo pip install -r requirements.txt
+sudo pip install tensorflow
+
+sudo apt-get install python-tk
+sudo apt-get install xboxdrv
+sudo apt-get install mupen64plus
+
+
+### Step 4: Install m64py GUI for mupen64plus (optional)
+cd ..
+wget "http://sourceforge.net/projects/m64py/files/m64py-0.2.3/m64py_0.2.3-0_all.deb/download" -O m64py_0.2.3-0_all.deb
+
+sudo dpkg -i m64py_0.2.3-0_all.deb
+sudo apt-get -f install
+
+
+### Step 5: Download the Mario Kart ROM
+# DL to TKproj directory
+# https://www.emuparadise.me/Nintendo_64_ROMs/Mario_Kart_64_(USA)/39949-download
+unzip 'Mario Kart 64 (USA).zip'
+
+
+### Step 6: Compile input plugins
+cd mupen64plus-input-bot
+make all
+
+cd ../mupen64plus-input-sdl/projects/unix
+make all
+
+cd ../../../TensorKart
+
+
+
+#######################################
+### Record, preprocess, train, play ###
+#######################################
+
+### Step 1: Record Training Data
+## Terminal 1
+cd TKproj/TensorKart
+python record.py
+
+## Terminal 2
+cd TKproj
+mupen64plus --input 'mupen64plus-input-sdl/projects/unix/mupen64plus-input-sdl.so' 'Mario Kart 64 (USA).n64'
+
+## Actions:
+# 1)  Move the Mario Kart window to topleft of screen without resizing
+# 2)  Select Record in the Data Acquisition window
+# 3)  Click on Mario Kart window to reset focus
+# 4)  Play Mario Kart to record training data
+# 5)  Select Stop in the Data Acquistion window
+# 6)  Modify the save directory in the Data Acquisition window to samples/validate/[Date-Time]
+# 7)  Start a new Mario Kart race
+# 8)  Select Select Record in the Data Acquisition window
+# 9)  Click on Mario Kart window to reset focus
+# 10) Play Mario Kart to record validation data
+# 11) Select Stop in the Data Acquistion window
+# 12) X-out of the Mario Kart and Data Acquistion windows
+
+
+### Step 2: Prepare the data
+## Terminal 1
+cd TKproj/TensorKart
+python utils.py prepare samples/train/* data/train/
+python utils.py prepare samples/validate/* data/validate/
+
+
+### Step 3: Train the network
+## Terminal 1
+python train.py # Quit with ctrl-\
+
+
+### Step 4: Watch the network play
+## Terminal 1
+cd TKproj/TensorKart
+python play.py # Quit with ctrl-\
+
+## Terminal 2
+cd TKproj
+mupen64plus --input mupen64plus-input-bot/mupen64plus-input-bot.so 'Mario Kart 64 (USA).n64' # keyboard-M to mute
+
+
+
+################
+### Appendix ###
+################
+
+### xbox 360 Controller Mappings
+# Axis 0    = left analog stick
+# Axis 1    = right analog stick
+# Button 0  = A 
+# Button 1  = B
+# Button 2  = X
+# Button 3  = Y
+# Button 4  = LB
+# Button 5  = RB
+# Button 6  = back
+# Button 7  = start
+# Button 8  = left analog stick center pushed in
+# Button 9  = right analog stick center pushed in
+# Button 10 = left trigger
+# Button 11 = right trigger
+# Button 12 = X silver guide button
+
+
+### References
+# http://askubuntu.com/questions/165210/how-do-i-get-an-xbox-360-controller-working
+# http://nguyenph88.blogspot.com/2014/04/how-to-install-wxpython.html
+# http://joytokey.net/en/posts/button-mapping-for-xbox360-controller/
+
