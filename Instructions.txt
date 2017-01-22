@@ -130,4 +130,3 @@ mupen64plus --input mupen64plus-input-bot/mupen64plus-input-bot.so 'Mario Kart 6
 # http://askubuntu.com/questions/165210/how-do-i-get-an-xbox-360-controller-working
 # http://nguyenph88.blogspot.com/2014/04/how-to-install-wxpython.html
 # http://joytokey.net/en/posts/button-mapping-for-xbox360-controller/
-
