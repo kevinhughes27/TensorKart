@@ -1,11 +1,12 @@
 #!/usr/bin/env python
 
 from BaseHTTPServer import BaseHTTPRequestHandler, HTTPServer
-from utils import take_screenshot, prepare_image
+from utils import take_screenshot, prepare_image, convert_to_probability
 from utils import XboxController
 import tensorflow as tf
 import model
 from termcolor import cprint
+import numpy as np
 
 PORT_NUMBER = 8082
 
@@ -33,6 +34,19 @@ class myHandler(BaseHTTPRequestHandler):
         ## Think
         joystick = model.y.eval(feed_dict={model.x: [vec], model.keep_prob: 1.0})[0]
 
+        ### Pre-process the controls
+        joystick[0] = max(min(joystick[0], 1), -1)
+
+        #### Convert button pushes to 'probabilities' then sample 0/1
+        p2 = convert_to_probability(joystick[2])
+        joystick[2] = np.random.choice(a = [0,1], p = [1-p2, p2])
+
+        p3 = convert_to_probability(joystick[3])
+        joystick[3] = np.random.choice(a = [0,1], p = [1-p3, p3])
+
+        p4 = convert_to_probability(joystick[4])
+        joystick[4] = np.random.choice(a = [0,1], p = [1-p4, p4])
+
         ## Act
         ### manual override
         manual_override = real_controller.manual_override()
@@ -45,9 +59,9 @@ class myHandler(BaseHTTPRequestHandler):
         output = [
             int(joystick[0] * 80),
             int(joystick[1] * 80),
-            int(round(joystick[2])),
-            int(round(joystick[3])),
-            int(round(joystick[4])),
+            int(joystick[2]),
+            int(joystick[3]),
+            int(joystick[4])
         ]
 
         ### print to console

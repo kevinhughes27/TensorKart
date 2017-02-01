@@ -20,6 +20,11 @@ IMG_W = 200
 IMG_H = 66
 
 
+def convert_to_probability(val):
+    p = max(min(val, 1), 0)
+    return(p)
+
+
 def take_screenshot():
     screen = wx.ScreenDC()
     size = screen.GetSize()
