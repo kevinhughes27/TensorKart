@@ -81,9 +81,9 @@ mupen64plus --input ~/src/mupen64plus-input-bot/mupen64plus-input-bot.so MarioKa
 
 Future Work / Ideas:
 --------------------
-* could also have a shadow mode where the AI just draws out what it would do rather than sending actions. A real self driving car would have this and use it a lot before letting it take the wheel.
-* Add a reinforcement layer based on lap time or other metrics so that the AI can start to teach itself now that it has a baseline
-* Deep learning is all about data perhaps a community could form around collecting a large amount of data and pushing the performance of this AI
+* Could also have a shadow mode where the AI just draws out what it would do rather than sending actions. A real self driving car would have this and use it a lot before letting it take the wheel.
+* Add a reinforcement layer based on lap time or other metrics so that the AI can start to teach itself now that it has a baseline.
+* Deep learning is all about data; perhaps a community could form around collecting a large amount of data and pushing the performance of this AI.
 
 
 Special Thanks To
