@@ -65,7 +65,7 @@ Run `python utils.py prepare samples/*` with an array of sample directories to b
 
 Training
 --------
-The `train.py` program will train a model using Google's TensorFlow framework and cuDNN for GPU acceleration. Training can take a while (~1 hour) depending on how much data you are training with. The program will save the model to disk when it is done.
+The `train.py` program will train a model using Google's TensorFlow framework and cuDNN for GPU acceleration. Training can take a while (~1 hour) depending on how much data you are training with and your system specs. The program will save the model to disk when it is done.
 
 
 Play
