@@ -70,7 +70,7 @@ The `train.py` program will train a model using Google's TensorFlow framework an
 
 Play
 ----
-The `play.py` program will take screenshots of your desktop expecting the emulator to be in the top left corner again. These images will be sent to the model to acquire the joystick command to send.
+The `play.py` program will take screenshots of your desktop expecting the emulator to be in the top left corner again. These images will be sent to the model to acquire the joystick command to send. The AI joystick commands can be overridden by holding the 'LB' button on the controller.
 
 Note - you need to start the emulator a [custom input driver](https://github.com/kevinhughes27/mupen64plus-input-bot) in order to pass the output from the AI to the emulator:
 
