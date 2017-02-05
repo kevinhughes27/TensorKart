@@ -26,20 +26,25 @@ class myHandler(BaseHTTPRequestHandler):
         pass
 
     def do_GET(self):
-        ## Look
-        bmp = take_screenshot()
-        vec = prepare_image(bmp)
 
-        ## Think
-        joystick = model.y.eval(feed_dict={model.x: [vec], model.keep_prob: 1.0})[0]
-
-        ## Act
-        ### manual override
+        ### determine manual override
         manual_override = real_controller.manual_override()
 
-        if (manual_override):
+        if (not manual_override):
+
+            ## Look
+            bmp = take_screenshot()
+            vec = prepare_image(bmp)
+
+            ## Think
+            joystick = model.y.eval(feed_dict={model.x: [vec], model.keep_prob: 1.0})[0]
+
+        else:
             joystick = real_controller.read()
             joystick[1] *= -1 # flip y (this is in the config when it runs normally)
+
+
+        ## Act
 
         ### calibration
         output = [

@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import sys
+import array
 import pygame
 
 import wx
@@ -8,36 +9,51 @@ wx.App()
 
 import numpy as np
 
+from PIL import Image
+
 from skimage.color import rgb2gray
 from skimage.transform import resize
 from skimage.io import imread
+from skimage.util import img_as_float
 
 import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
 
+SRC_W = 640
+SRC_H = 480
+SRC_D = 3
+OFFSET_X = 400
+OFFSET_Y = 240
 
 IMG_W = 200
 IMG_H = 66
+IMG_D = 3
 
 
 def take_screenshot():
     screen = wx.ScreenDC()
-    size = screen.GetSize()
-    bmp = wx.Bitmap(size[0], size[1])
+    bmp = wx.Bitmap(SRC_W, SRC_H)
     mem = wx.MemoryDC(bmp)
-    mem.Blit(0, 0, size[0], size[1], screen, 0, 0)
-    return bmp.GetSubBitmap(wx.Rect([0,0],[615,480]))
+    mem.Blit(0, 0, SRC_W, SRC_H, screen, OFFSET_X, OFFSET_Y)
+    return bmp
 
+
+arr = array.array('B', [0] * (SRC_W * SRC_H * SRC_D));
 
 def prepare_image(img):
     if(type(img) == wx._core.Bitmap):
-        buf = img.ConvertToImage().GetData()
-        img = np.frombuffer(buf, dtype='uint8')
+        img.CopyToBuffer(arr)
+        img = np.frombuffer(arr, dtype=np.uint8)
 
-    img = img.reshape(480, 615, 3)
-    img = resize(img, [IMG_H, IMG_W])
+    img = img.reshape(SRC_H, SRC_W, SRC_D)
 
-    return img
+    im = Image.fromarray(img)
+    im = im.resize((IMG_W, IMG_H))
+
+    im_arr = np.frombuffer(im.tobytes(), dtype=np.uint8)
+    im_arr = im_arr.reshape((IMG_H, IMG_W, IMG_D))
+
+    return img_as_float(im_arr)
 
 
 class XboxController:
