@@ -66,9 +66,9 @@ class XboxController:
 
 
 class Data(object):
-    def __init__(self):
-        self._X = np.load("data/X.npy")
-        self._y = np.load("data/y.npy")
+    def __init__(self, path):
+        self._X = np.load(path + "/X.npy")
+        self._y = np.load(path + "/y.npy")
         self._epochs_completed = 0
         self._index_in_epoch = 0
         self._num_examples = self._X.shape[0]
@@ -89,6 +89,9 @@ class Data(object):
             assert batch_size <= self._num_examples
         end = self._index_in_epoch
         return self._X[start:end], self._y[start:end]
+
+    def ret_n(self, n):
+        return self._X[0:n], self._y[0:n]
 
 
 def load_sample(sample):
@@ -140,7 +143,7 @@ def viewer(sample):
 
 
 # prepare training data
-def prepare(samples):
+def prepare(samples, save_dir):
     print "Preparing data"
 
     X = []
@@ -165,8 +168,8 @@ def prepare(samples):
     X = np.asarray(X)
     y = np.concatenate(y)
 
-    np.save("data/X", X)
-    np.save("data/y", y)
+    np.save(save_dir + "X", X)
+    np.save(save_dir + "y", y)
 
     print "Done!"
     return
@@ -176,4 +179,4 @@ if __name__ == '__main__':
     if sys.argv[1] == 'viewer':
         viewer(sys.argv[2])
     elif sys.argv[1] == 'prepare':
-        prepare(sys.argv[2:])
+        prepare([sys.argv[2]], sys.argv[3])
