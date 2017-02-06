@@ -65,12 +65,12 @@ Run `python utils.py prepare samples/*` with an array of sample directories to b
 
 Training
 --------
-The `train.py` program will train a model using Google's TensorFlow framework and cuDNN for GPU acceleration. Training can take a while (~1 hour) depending on how much data you are training with. The program will save the model to disk when it is done.
+The `train.py` program will train a model using Google's TensorFlow framework and cuDNN for GPU acceleration. Training can take a while (~1 hour) depending on how much data you are training with and your system specs. The program will save the model to disk when it is done.
 
 
 Play
 ----
-The `play.py` program will take screenshots of your desktop expecting the emulator to be in the top left corner again. These images will be sent to the model to acquire the joystick command to send.
+The `play.py` program will take screenshots of your desktop expecting the emulator to be in the top left corner again. These images will be sent to the model to acquire the joystick command to send. The AI joystick commands can be overridden by holding the 'LB' button on the controller.
 
 Note - you need to start the emulator a [custom input driver](https://github.com/kevinhughes27/mupen64plus-input-bot) in order to pass the output from the AI to the emulator:
 
@@ -81,9 +81,9 @@ mupen64plus --input ~/src/mupen64plus-input-bot/mupen64plus-input-bot.so MarioKa
 
 Future Work / Ideas:
 --------------------
-* could also have a shadow mode where the AI just draws out what it would do rather than sending actions. A real self driving car would have this and use it a lot before letting it take the wheel.
-* Add a reinforcement layer based on lap time or other metrics so that the AI can start to teach itself now that it has a baseline
-* Deep learning is all about data perhaps a community could form around collecting a large amount of data and pushing the performance of this AI
+* Could also have a shadow mode where the AI just draws out what it would do rather than sending actions. A real self driving car would have this and use it a lot before letting it take the wheel.
+* Add a reinforcement layer based on lap time or other metrics so that the AI can start to teach itself now that it has a baseline.
+* Deep learning is all about data; perhaps a community could form around collecting a large amount of data and pushing the performance of this AI.
 
 
 Special Thanks To
