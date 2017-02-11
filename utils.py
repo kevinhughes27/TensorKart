@@ -22,11 +22,13 @@ IMG_H = 66
 
 def take_screenshot():
     screen = wx.ScreenDC()
-    size = screen.GetSize()
-    bmp = wx.Bitmap(size[0], size[1])
-    mem = wx.MemoryDC(bmp)
-    mem.Blit(0, 0, size[0], size[1], screen, 0, 0)
-    return bmp.GetSubBitmap(wx.Rect([0,0],[615,480]))
+    w, h = screen.Size.Get()
+    bmp = wx.EmptyBitmap(w, h)
+    mem = wx.MemoryDCFromDC(screen)
+    mem.SelectObject(bmp)
+    mem.Blit(0, 0, w, h, screen, 0, 0)
+    mem.SelectObject(wx.NullBitmap)
+    return bmp.GetSubBitmap(wx.Rect(10,60,615,480))
 
 
 def prepare_image(img):
