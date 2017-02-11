@@ -125,6 +125,19 @@ if __name__ == '__main__':
 #
 # MODIFIED:
 # 270.604922056
+#
+######################################################
+  
+
+######################################################
+# RESULTS DURING ACTUAL UTILS.PY PREPARE RUN #
+#
+# Preparing 4493 samples (8 races)
+#
+# ORIGINAL CODE: ~280s
+#
+# MODIFIED CODE: ~90s
+#
 ######################################################
   
 
@@ -141,7 +154,7 @@ if __name__ == '__main__':
 #
 # IMPROVEMENT (AS % DECREASE OVER ORIGINAL):
 #                  Screenshot        Prepare Image   Model Eval
-#                  36.06%            63.86%          6.94%
+#                  36.06%            63.86%          6.94% (execution variance - no changes)
 #
 ######################################################
 
