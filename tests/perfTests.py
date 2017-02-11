@@ -27,8 +27,7 @@ IMG_H = 66
 IMG_D = 3
 
 
-# ORIGINAL take_screenshot() #
-def take_screenshot():
+def original_take_screenshot():
     screen = wx.ScreenDC()
     size = screen.GetSize()
     bmp = wx.Bitmap(size[0], size[1])
@@ -37,8 +36,7 @@ def take_screenshot():
     return bmp.GetSubBitmap(wx.Rect([0,0],[SRC_W,SRC_H]))
 
 
-# MODIFIED take_screenshot() #
-def take_screenshot_direct_screen_rect():
+def modified_take_screenshot():
     screen = wx.ScreenDC()
     bmp = wx.Bitmap(SRC_W, SRC_H)
     mem = wx.MemoryDC(bmp)
@@ -46,8 +44,7 @@ def take_screenshot_direct_screen_rect():
     return bmp
 
 
-# ORIGINAL prepare_image() #
-def prepare_image(img):
+def original_prepare_image(img):
     buf = img.ConvertToImage().GetData()
     img = np.frombuffer(buf, dtype='uint8')
 
@@ -57,9 +54,8 @@ def prepare_image(img):
     return img
 
 
-# MODIFIED prepare_image() #
 arr = array.array('B', [0] * (SRC_W * SRC_H * SRC_D));
-def prepare_image_with_PIL(img):
+def modified_prepare_image(img):
     img.CopyToBuffer(arr)
     img = np.frombuffer(arr, dtype=np.uint8)
 
@@ -74,19 +70,16 @@ def prepare_image_with_PIL(img):
     return img_as_float(im_arr)
 
 
-# CALL ORIGINAL #
 def call_original():
-    bmp = take_screenshot()
-    vec = prepare_image(bmp)
+    bmp = original_take_screenshot()
+    vec = original_prepare_image(bmp)
 
 
-# CALL MODIFIED #
 def call_modified():
-    bmp = take_screenshot_direct_screen_rect()
-    vec = prepare_image_with_PIL(bmp)
+    bmp = modified_take_screenshot()
+    vec = modified_prepare_image(bmp)
 
 
-# MAIN #
 if __name__ == '__main__':
   import timeit
 
