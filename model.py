@@ -1,7 +1,6 @@
 import tensorflow as tf
+from utils import Screenshot
 
-IMG_W = 200
-IMG_H = 66
 OUT_SHAPE = 5
 
 def weight_variable(shape):
@@ -15,7 +14,7 @@ def bias_variable(shape):
 def conv2d(x, W, stride):
   return tf.nn.conv2d(x, W, strides=[1, stride, stride, 1], padding='VALID')
 
-x = tf.placeholder(tf.float32, shape=[None, IMG_H, IMG_W, 3])
+x = tf.placeholder(tf.float32, shape=[None, Screenshot.IMG_H, Screenshot.IMG_W, Screenshot.IMG_D])
 y_ = tf.placeholder(tf.float32, shape=[None, OUT_SHAPE])
 
 x_image = x
