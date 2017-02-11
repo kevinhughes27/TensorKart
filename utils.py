@@ -23,9 +23,9 @@ import matplotlib.image as mpimg
 
 def take_screenshot():
     screen = wx.ScreenDC()
-    bmp = wx.Bitmap(ImageHelper.SRC_W, ImageHelper.SRC_H)
+    bmp = wx.Bitmap(Screenshot.SRC_W, Screenshot.SRC_H)
     mem = wx.MemoryDC(bmp)
-    mem.Blit(0, 0, ImageHelper.SRC_W, ImageHelper.SRC_H, screen, ImageHelper.OFFSET_X, ImageHelper.OFFSET_Y)
+    mem.Blit(0, 0, Screenshot.SRC_W, Screenshot.SRC_H, screen, Screenshot.OFFSET_X, Screenshot.OFFSET_Y)
     return bmp
 
 
@@ -35,18 +35,18 @@ def prepare_image(img):
         img.CopyToBuffer(arr)
         img = np.frombuffer(arr, dtype=np.uint8)
 
-    img = img.reshape(ImageHelper.SRC_H, ImageHelper.SRC_W, ImageHelper.SRC_D)
+    img = img.reshape(Screenshot.SRC_H, Screenshot.SRC_W, Screenshot.SRC_D)
 
     im = Image.fromarray(img)
-    im = im.resize((ImageHelper.IMG_W, ImageHelper.IMG_H))
+    im = im.resize((Screenshot.IMG_W, Screenshot.IMG_H))
 
     im_arr = np.frombuffer(im.tobytes(), dtype=np.uint8)
-    im_arr = im_arr.reshape((ImageHelper.IMG_H, ImageHelper.IMG_W, ImageHelper.IMG_D))
+    im_arr = im_arr.reshape((Screenshot.IMG_H, Screenshot.IMG_W, Screenshot.IMG_D))
 
     return img_as_float(im_arr)
 
 
-class ImageHelper:
+class Screenshot:
     SRC_W = 615
     SRC_H = 480
     SRC_D = 3
