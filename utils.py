@@ -19,41 +19,46 @@ from skimage.util import img_as_float
 import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
 
-SRC_W = 615
-SRC_H = 480
-SRC_D = 3
-OFFSET_X = 0
-OFFSET_Y = 0
-
-IMG_W = 200
-IMG_H = 66
-IMG_D = 3
 
 
 def take_screenshot():
     screen = wx.ScreenDC()
-    bmp = wx.Bitmap(SRC_W, SRC_H)
+    bmp = wx.Bitmap(ImageHelper.SRC_W, ImageHelper.SRC_H)
     mem = wx.MemoryDC(bmp)
-    mem.Blit(0, 0, SRC_W, SRC_H, screen, OFFSET_X, OFFSET_Y)
+    mem.Blit(0, 0, ImageHelper.SRC_W, ImageHelper.SRC_H, screen, ImageHelper.OFFSET_X, ImageHelper.OFFSET_Y)
     return bmp
 
 
-arr = array.array('B', [0] * (SRC_W * SRC_H * SRC_D));
 
 def prepare_image(img):
     if(type(img) == wx._core.Bitmap):
         img.CopyToBuffer(arr)
         img = np.frombuffer(arr, dtype=np.uint8)
 
-    img = img.reshape(SRC_H, SRC_W, SRC_D)
+    img = img.reshape(ImageHelper.SRC_H, ImageHelper.SRC_W, ImageHelper.SRC_D)
 
     im = Image.fromarray(img)
-    im = im.resize((IMG_W, IMG_H))
+    im = im.resize((ImageHelper.IMG_W, ImageHelper.IMG_H))
 
     im_arr = np.frombuffer(im.tobytes(), dtype=np.uint8)
-    im_arr = im_arr.reshape((IMG_H, IMG_W, IMG_D))
+    im_arr = im_arr.reshape((ImageHelper.IMG_H, ImageHelper.IMG_W, ImageHelper.IMG_D))
 
     return img_as_float(im_arr)
+
+
+class ImageHelper:
+    SRC_W = 615
+    SRC_H = 480
+    SRC_D = 3
+
+    OFFSET_X = 0
+    OFFSET_Y = 0
+
+    IMG_W = 200
+    IMG_H = 66
+    IMG_D = 3
+
+    image_array = array.array('B', [0] * (SRC_W * SRC_H * SRC_D));
 
 
 class XboxController:
