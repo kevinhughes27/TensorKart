@@ -12,6 +12,7 @@ from matplotlib.backends.backend_wxagg import FigureCanvasWxAgg as FigCanvas
 
 from utils import take_screenshot, XboxController
 
+IDLE_SAMPLE_RATE = 1500
 SAMPLE_RATE = 200
 
 class MainWindow(wx.Frame):
@@ -33,7 +34,8 @@ class MainWindow(wx.Frame):
         self.timer = wx.Timer(self)
         self.Bind(wx.EVT_TIMER, self.on_timer, self.timer)
         self.rate = SAMPLE_RATE
-        self.timer.Start(self.rate)
+        self.idle_rate = IDLE_SAMPLE_RATE
+        self.timer.Start(self.idle_rate)
 
         self.recording = False
         self.t = 0
@@ -155,7 +157,10 @@ class MainWindow(wx.Frame):
             self.start_recording()
 
         # un pause timer
-        self.timer.Start(self.rate)
+        if self.recording:
+            self.timer.Start(self.rate)
+        else:
+            self.timer.Start(self.idle_rate)
 
 
     def start_recording(self):

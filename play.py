@@ -27,33 +27,37 @@ class myHandler(BaseHTTPRequestHandler):
         pass
 
     def do_GET(self):
-        ## Look
-        bmp = take_screenshot()
-        vec = prepare_image(bmp)
 
-        ## Think
-        joystick = model.y.eval(feed_dict={model.x: [vec], model.keep_prob: 1.0})[0]
-
-        ### Pre-process the controls
-        joystick[0] = max(min(joystick[0], 1), -1)
-
-        #### Convert button pushes to 'probabilities' then sample 0/1
-        p2 = convert_to_probability(joystick[2])
-        joystick[2] = np.random.choice(a = [0,1], p = [1-p2, p2])
-
-        p3 = convert_to_probability(joystick[3])
-        joystick[3] = np.random.choice(a = [0,1], p = [1-p3, p3])
-
-        p4 = convert_to_probability(joystick[4])
-        joystick[4] = np.random.choice(a = [0,1], p = [1-p4, p4])
-
-        ## Act
-        ### manual override
         manual_override = real_controller.manual_override()
 
-        if (manual_override):
+        if (not manual_override):
+
+            ## Look
+            bmp = take_screenshot()
+            vec = prepare_image(bmp)
+
+            ## Think
+            joystick = model.y.eval(feed_dict={model.x: [vec], model.keep_prob: 1.0})[0]
+
+            ### Pre-process the controls
+            joystick[0] = max(min(joystick[0], 1), -1)
+
+            #### Convert button pushes to 'probabilities' then sample 0/1
+            p2 = convert_to_probability(joystick[2])
+            joystick[2] = np.random.choice(a = [0,1], p = [1-p2, p2])
+
+            p3 = convert_to_probability(joystick[3])
+            joystick[3] = np.random.choice(a = [0,1], p = [1-p3, p3])
+
+            p4 = convert_to_probability(joystick[4])
+            joystick[4] = np.random.choice(a = [0,1], p = [1-p4, p4])
+            
+        else:
             joystick = real_controller.read()
             joystick[1] *= -1 # flip y (this is in the config when it runs normally)
+
+
+        ## Act
 
         ### calibration
         output = [
