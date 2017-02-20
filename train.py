@@ -26,7 +26,7 @@ step_size = int(num_samples / batch_size)
 
 for epoch in range(epochs):
     for i in range(step_size):
-        batch = data.next_batch(100)
+        batch = data.next_batch(batch_size)
 
         train_step.run(feed_dict={model.x: batch[0], model.y_: batch[1], model.keep_prob: 0.8})
 
