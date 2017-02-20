@@ -38,7 +38,7 @@ class myHandler(BaseHTTPRequestHandler):
             vec = prepare_image(bmp)
 
             ## Think
-            joystick = model.y.eval(feed_dict={model.x: [vec], model.keep_prob: 1.0})[0]
+            joystick = model.y.eval(session=sess, feed_dict={model.x: [vec], model.keep_prob: 1.0})[0]
 
         else:
             joystick = real_controller.read()
