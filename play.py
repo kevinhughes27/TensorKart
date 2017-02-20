@@ -5,6 +5,7 @@ from utils import take_screenshot, prepare_image
 from utils import XboxController
 import tensorflow as tf
 import model
+import threading
 from termcolor import cprint
 
 PORT_NUMBER = 8082
@@ -72,4 +73,8 @@ class myHandler(BaseHTTPRequestHandler):
 if __name__ == '__main__':
     server = HTTPServer(('', PORT_NUMBER), myHandler)
     print 'Started httpserver on port ' , PORT_NUMBER
-    server.serve_forever()
+    thread = threading.Thread(target=server.serve_forever, args=())
+    thread.daemon = True
+    thread.start()
+    raw_input('Serving now... press <Enter> to shut down.')
+    print 'Shutting down...'
