@@ -49,11 +49,15 @@ b_conv5 = bias_variable([64])
 
 h_conv5 = tf.nn.relu(conv2d(h_conv4, W_conv5, 1) + b_conv5)
 
+# Poorly named probably, this converts the convolution layer into a flattened layer. Basically the shape of h_conv5 multiplied out
+s = h_conv5.get_shape().as_list()
+flatten_dimension = s[1] * s[2] * s[3]
+
 #FCL 1
-W_fc1 = weight_variable([1152, 1164])
+W_fc1 = weight_variable([flatten_dimension, 1164])
 b_fc1 = bias_variable([1164])
 
-h_conv5_flat = tf.reshape(h_conv5, [-1, 1152])
+h_conv5_flat = tf.reshape(h_conv5, [-1, flatten_dimension])
 h_fc1 = tf.nn.relu(tf.matmul(h_conv5_flat, W_fc1) + b_fc1)
 
 keep_prob = tf.placeholder(tf.float32)
