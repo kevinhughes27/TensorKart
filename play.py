@@ -35,12 +35,8 @@ class Actor:
             vec = resize_image(obs)
 
             ## Think
-<<<<<<< HEAD
-            joystick = model.y.eval(session=sess, feed_dict={model.x: [vec], model.keep_prob: 1.0})[0]
-=======
             joystick = \
               model.y.eval(session=self.sess, feed_dict={model.x: [vec], model.keep_prob: 1.0})[0]
->>>>>>> 60ec9fd... Refactor to implement agent using gym env
 
         else:
             joystick = self.real_controller.read()
