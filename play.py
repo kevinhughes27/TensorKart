@@ -1,47 +1,49 @@
 #!/usr/bin/env python
 
-from BaseHTTPServer import BaseHTTPRequestHandler, HTTPServer
-from utils import take_screenshot, prepare_image
+from utils import resize_image
 from utils import XboxController
 import tensorflow as tf
 import model
-import threading
 from termcolor import cprint
+import gym
+import gym_mupen64plus
 
-PORT_NUMBER = 8082
-
-# Start session
-sess = tf.InteractiveSession()
-sess.run(tf.global_variables_initializer())
-
-# Load Model
-saver = tf.train.Saver()
-saver.restore(sess, "./model.ckpt")
-
-# Init contoller for manual override
-real_controller = XboxController()
 
 # Play
-class myHandler(BaseHTTPRequestHandler):
-    def log_message(self, format, *args):
-        pass
+class Actor:
 
-    def do_GET(self):
+    def __init__(self):
+        # Start session
+        self.sess = tf.InteractiveSession()
+        self.sess.run(tf.global_variables_initializer())
+
+        # Load Model
+        saver = tf.train.Saver()
+        saver.restore(self.sess, "./model.ckpt")
+
+        # Init contoller for manual override
+        self.real_controller = XboxController()
+
+    def get_action(self, obs):
 
         ### determine manual override
-        manual_override = real_controller.manual_override()
+        manual_override = self.real_controller.manual_override()
 
-        if (not manual_override):
+        if not manual_override:
 
             ## Look
-            bmp = take_screenshot()
-            vec = prepare_image(bmp)
+            vec = resize_image(obs)
 
             ## Think
+<<<<<<< HEAD
             joystick = model.y.eval(session=sess, feed_dict={model.x: [vec], model.keep_prob: 1.0})[0]
+=======
+            joystick = \
+              model.y.eval(session=self.sess, feed_dict={model.x: [vec], model.keep_prob: 1.0})[0]
+>>>>>>> 60ec9fd... Refactor to implement agent using gym env
 
         else:
-            joystick = real_controller.read()
+            joystick = self.real_controller.read()
             joystick[1] *= -1 # flip y (this is in the config when it runs normally)
 
 
@@ -57,24 +59,35 @@ class myHandler(BaseHTTPRequestHandler):
         ]
 
         ### print to console
-        if (manual_override):
+        if manual_override:
             cprint("Manual: " + str(output), 'yellow')
         else:
             cprint("AI: " + str(output), 'green')
 
-        ### respond with action
-        self.send_response(200)
-        self.send_header("Content-type", "text/plain")
-        self.end_headers()
-        self.wfile.write(output)
-        return
+        return output
 
 
 if __name__ == '__main__':
-    server = HTTPServer(('', PORT_NUMBER), myHandler)
-    print 'Started httpserver on port ' , PORT_NUMBER
-    thread = threading.Thread(target=server.serve_forever, args=())
-    thread.daemon = True
-    thread.start()
-    raw_input('Serving now... press <Enter> to shut down.')
-    print 'Shutting down...'
+
+    env = gym.make('Mario-Kart-Luigi-Raceway-v0')
+    obs = env.reset()
+    print('env ready!')
+
+    actor = Actor()
+    print('actor ready!')
+
+    print('beginning episode loop')
+    total_reward = 0
+    end_episode = False
+    while not end_episode:
+        action = actor.get_action(obs)
+        obs, reward, end_episode, info = env.step(action)
+        total_reward += reward
+
+    print('end episode... total reward: ' + str(total_reward))
+
+    obs = env.reset()
+    print('env ready!')
+
+    raw_input('press <ENTER> to quit')
+
