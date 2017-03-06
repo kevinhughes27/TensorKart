@@ -20,7 +20,6 @@ import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
 
 
-
 def take_screenshot():
     screen = wx.ScreenDC()
     bmp = wx.Bitmap(Screenshot.SRC_W, Screenshot.SRC_H)
@@ -37,6 +36,11 @@ def prepare_image(img):
 
     img = img.reshape(Screenshot.SRC_H, Screenshot.SRC_W, Screenshot.SRC_D)
 
+    return resize_image(img)
+
+
+def resize_image(img):
+
     im = Image.fromarray(img)
     im = im.resize((Screenshot.IMG_W, Screenshot.IMG_H))
 
@@ -47,12 +51,12 @@ def prepare_image(img):
 
 
 class Screenshot:
-    SRC_W = 615
+    SRC_W = 640
     SRC_H = 480
     SRC_D = 3
 
-    OFFSET_X = 0
-    OFFSET_Y = 0
+    OFFSET_X = 400
+    OFFSET_Y = 240
 
     IMG_W = 200
     IMG_H = 66
