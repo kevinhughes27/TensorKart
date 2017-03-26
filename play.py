@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 
-from utils import resize_image
-from utils import XboxController
+from utils import resize_image, XboxController
 import tensorflow as tf
 import model
 from termcolor import cprint
@@ -67,6 +66,7 @@ if __name__ == '__main__':
 
     env = gym.make('Mario-Kart-Luigi-Raceway-v0')
     obs = env.reset()
+    env.render()
     print('env ready!')
 
     actor = Actor()
@@ -78,6 +78,7 @@ if __name__ == '__main__':
     while not end_episode:
         action = actor.get_action(obs)
         obs, reward, end_episode, info = env.step(action)
+        env.render()
         total_reward += reward
 
     print('end episode... total reward: ' + str(total_reward))
@@ -86,4 +87,6 @@ if __name__ == '__main__':
     print('env ready!')
 
     raw_input('press <ENTER> to quit')
+
+    env.close()
 
