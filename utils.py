@@ -4,9 +4,6 @@ import sys
 import array
 import pygame
 
-import wx
-wx.App()
-
 import numpy as np
 
 from PIL import Image
@@ -21,6 +18,8 @@ import matplotlib.image as mpimg
 
 
 def take_screenshot():
+    import wx
+    wx.App()
     screen = wx.ScreenDC()
     bmp = wx.Bitmap(Screenshot.SRC_W, Screenshot.SRC_H)
     mem = wx.MemoryDC(bmp)
@@ -30,6 +29,8 @@ def take_screenshot():
 
 
 def prepare_image(img):
+    import wx
+    wx.App()
     if(type(img) == wx._core.Bitmap):
         img.CopyToBuffer(Screenshot.image_array)
         img = np.frombuffer(Screenshot.image_array, dtype=np.uint8)
