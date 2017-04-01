@@ -70,19 +70,13 @@ The `train.py` program will train a model using Google's TensorFlow framework an
 
 Play
 ----
-The `play.py` program will take screenshots of your desktop expecting the emulator to be in the top left corner again. These images will be sent to the model to acquire the joystick command to send. The AI joystick commands can be overridden by holding the 'LB' button on the controller.
-
-Note - you need to start the emulator a [custom input driver](https://github.com/kevinhughes27/mupen64plus-input-bot) in order to pass the output from the AI to the emulator:
-
-```
-mupen64plus --input ~/src/mupen64plus-input-bot/mupen64plus-input-bot.so MarioKart64.z64
-```
+The `play.py` program will use the [`gym-mupen64plus`](https://github.com/bzier/gym-mupen64plus) environment to execute the trained agent against the MarioKart environment. The environment will provide the screenshots of the emulator. These images will be sent to the model to acquire the joystick command to send. The AI joystick commands can be overridden by holding the 'LB' button on the controller.
 
 
 Future Work / Ideas:
 --------------------
+* Add a reinforcement layer based on lap time or other metrics so that the AI can start to teach itself now that it has a baseline. The environment currently provides a reward signal of `-1` per time-step, which gives the AI agent a metric to calculate its performance during each race (episode), the goal being to maximize reward and therefore, minimize overall race duration.
 * Could also have a shadow mode where the AI just draws out what it would do rather than sending actions. A real self driving car would have this and use it a lot before letting it take the wheel.
-* Add a reinforcement layer based on lap time or other metrics so that the AI can start to teach itself now that it has a baseline.
 * Deep learning is all about data; perhaps a community could form around collecting a large amount of data and pushing the performance of this AI.
 
 
