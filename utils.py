@@ -17,17 +17,6 @@ import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
 
 
-def take_screenshot():
-    import wx
-    wx.App()
-    screen = wx.ScreenDC()
-    bmp = wx.Bitmap(Screenshot.SRC_W, Screenshot.SRC_H)
-    mem = wx.MemoryDC(bmp)
-    mem.Blit(0, 0, Screenshot.SRC_W, Screenshot.SRC_H, screen, Screenshot.OFFSET_X, Screenshot.OFFSET_Y)
-    return bmp
-
-
-
 def prepare_image(img):
     import wx
     wx.App()
