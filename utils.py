@@ -18,11 +18,7 @@ import matplotlib.image as mpimg
 
 
 def prepare_image(img):
-    import wx
-    if(type(img) == wx._core.Bitmap):
-        img.CopyToBuffer(Screenshot.image_array)
-        img = np.frombuffer(Screenshot.image_array, dtype=np.uint8)
-
+    
     img = img.reshape(Screenshot.SRC_H, Screenshot.SRC_W, Screenshot.SRC_D)
 
     return resize_image(img)
