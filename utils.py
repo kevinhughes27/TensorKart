@@ -56,8 +56,8 @@ class Screenshot:
     SRC_H = 480
     SRC_D = 3
 
-    OFFSET_X = 400
-    OFFSET_Y = 240
+    OFFSET_X = 0
+    OFFSET_Y = 0
 
     IMG_W = 200
     IMG_H = 66
