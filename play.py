@@ -26,7 +26,7 @@ class Actor:
     def get_action(self, obs):
 
         ### determine manual override
-        manual_override = self.real_controller.manual_override()
+        manual_override = self.real_controller.LeftBumper == 1
 
         if not manual_override:
 
