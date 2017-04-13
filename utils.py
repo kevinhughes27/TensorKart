@@ -30,7 +30,7 @@ def prepare_image(img):
 
 def resize_image(img):
 
-    im = Image.fromarray(img)
+    im = Image.fromarray(img, 'L')
     im = im.resize((Screenshot.IMG_W, Screenshot.IMG_H))
 
     im_arr = np.frombuffer(im.tobytes(), dtype=np.uint8)
