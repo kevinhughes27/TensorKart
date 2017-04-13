@@ -20,32 +20,32 @@ y_ = tf.placeholder(tf.float32, shape=[None, OUT_SHAPE])
 x_image = x
 
 #first convolutional layer
-W_conv1 = weight_variable([5, 5, 3, 24])
-b_conv1 = bias_variable([24])
+W_conv1 = weight_variable([5, 5, 1, 8])
+b_conv1 = bias_variable([8])
 
 h_conv1 = tf.nn.relu(conv2d(x_image, W_conv1, 2) + b_conv1)
 
 #second convolutional layer
-W_conv2 = weight_variable([5, 5, 24, 36])
-b_conv2 = bias_variable([36])
+W_conv2 = weight_variable([5, 5, 8, 12])
+b_conv2 = bias_variable([12])
 
 h_conv2 = tf.nn.relu(conv2d(h_conv1, W_conv2, 2) + b_conv2)
 
 #third convolutional layer
-W_conv3 = weight_variable([5, 5, 36, 48])
-b_conv3 = bias_variable([48])
+W_conv3 = weight_variable([5, 5, 12, 16])
+b_conv3 = bias_variable([16])
 
 h_conv3 = tf.nn.relu(conv2d(h_conv2, W_conv3, 2) + b_conv3)
 
 #fourth convolutional layer
-W_conv4 = weight_variable([3, 3, 48, 64])
-b_conv4 = bias_variable([64])
+W_conv4 = weight_variable([3, 3, 16, 21])
+b_conv4 = bias_variable([21])
 
 h_conv4 = tf.nn.relu(conv2d(h_conv3, W_conv4, 1) + b_conv4)
 
 #fifth convolutional layer
-W_conv5 = weight_variable([3, 3, 64, 64])
-b_conv5 = bias_variable([64])
+W_conv5 = weight_variable([3, 3, 21, 21])
+b_conv5 = bias_variable([21])
 
 h_conv5 = tf.nn.relu(conv2d(h_conv4, W_conv5, 1) + b_conv5)
 
