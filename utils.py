@@ -21,8 +21,9 @@ import threading
 
 
 def prepare_image(img):
-    
+
     img = img.reshape(Screenshot.SRC_H, Screenshot.SRC_W, Screenshot.SRC_D)
+    img = rgb2gray(img)
 
     return resize_image(img)
 
