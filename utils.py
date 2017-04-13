@@ -49,7 +49,7 @@ class Screenshot:
 
     IMG_W = 200
     IMG_H = 66
-    IMG_D = 3
+    IMG_D = 1
 
     image_array = array.array('B', [0] * (SRC_W * SRC_H * SRC_D));
 
