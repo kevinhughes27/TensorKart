@@ -1,18 +1,8 @@
 #!/usr/bin/env python
 
 from utils import resize_image, XboxController
-<<<<<<< 48ae7d1910c02bfc04433f31ac9fd14322f7747e
-from termcolor import cprint
-||||||| merged common ancestors
-import tensorflow as tf
-import model
-from termcolor import cprint
-=======
 from termcolor import cprint
 
-import tensorflow as tf
-import model
->>>>>>> split Sample class out of Screenshot class
 import gym
 import gym_mupen64plus
 from train import create_model
