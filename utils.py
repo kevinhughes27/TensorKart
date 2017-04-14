@@ -5,12 +5,9 @@ import array
 
 import numpy as np
 
-from PIL import Image
-
 from skimage.color import rgb2gray
 from skimage.transform import resize
 from skimage.io import imread
-from skimage.util import img_as_float
 
 import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
@@ -20,22 +17,10 @@ import math
 import threading
 
 
-def prepare_image(img):
-    
-    img = img.reshape(Screenshot.SRC_H, Screenshot.SRC_W, Screenshot.SRC_D)
-
-    return resize_image(img)
-
-
 def resize_image(img):
-
-    im = Image.fromarray(img)
-    im = im.resize((Screenshot.IMG_W, Screenshot.IMG_H))
-
-    im_arr = np.frombuffer(im.tobytes(), dtype=np.uint8)
-    im_arr = im_arr.reshape((Screenshot.IMG_H, Screenshot.IMG_W, Screenshot.IMG_D))
-
-    return img_as_float(im_arr)
+    im = resize(img, (Sample.IMG_H, Sample.IMG_W, Sample.IMG_D))
+    im_arr = im.reshape((Sample.IMG_H, Sample.IMG_W, Sample.IMG_D))
+    return im_arr
 
 
 class Screenshot(object):
@@ -46,16 +31,14 @@ class Screenshot(object):
     OFFSET_X = 0
     OFFSET_Y = 0
 
+
+class Sample:
     IMG_W = 200
     IMG_H = 66
     IMG_D = 3
 
-    image_array = array.array('B', [0] * (SRC_W * SRC_H * SRC_D));
-
-
 
 class XboxController(object):
-
     MAX_TRIG_VAL = math.pow(2, 8)
     MAX_JOY_VAL = math.pow(2, 15)
 
@@ -235,7 +218,7 @@ def prepare(samples):
         # load, prepare and add images to X
         for image_file in image_files:
             image = imread(image_file)
-            vec = prepare_image(image)
+            vec = resize_image(image)
             X.append(vec)
 
     print("Saving to file...")
