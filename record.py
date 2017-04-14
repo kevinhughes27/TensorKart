@@ -105,9 +105,9 @@ class MainWindow(wx.Frame):
 
     def take_screenshot(self):
         screen = wx.ScreenDC()
-        bmp = wx.Bitmap(Screenshot.SRC_W, Screenshot.SRC_H)
+        bmp = wx.Bitmap(Screenshot.IMG_W, Screenshot.IMG_H)
         mem = wx.MemoryDC(bmp)
-        mem.Blit(0, 0, Screenshot.SRC_W, Screenshot.SRC_H, screen, Screenshot.OFFSET_X, Screenshot.OFFSET_Y)
+        mem.Blit(0, 0, Screenshot.IMG_W, Screenshot.IMG_H, screen, Screenshot.OFFSET_X, Screenshot.OFFSET_Y)
         return bmp
 
     def update_plot(self):

@@ -1,5 +1,5 @@
 import tensorflow as tf
-from utils import Screenshot
+from utils import Sample
 
 OUT_SHAPE = 5
 
@@ -14,7 +14,7 @@ def bias_variable(shape):
 def conv2d(x, W, stride):
   return tf.nn.conv2d(x, W, strides=[1, stride, stride, 1], padding='VALID')
 
-x = tf.placeholder(tf.float32, shape=[None, Screenshot.IMG_H, Screenshot.IMG_W, Screenshot.IMG_D])
+x = tf.placeholder(tf.float32, shape=[None, Sample.IMG_H, Sample.IMG_W, Sample.IMG_D])
 y_ = tf.placeholder(tf.float32, shape=[None, OUT_SHAPE])
 
 x_image = x
