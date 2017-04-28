@@ -28,6 +28,8 @@ def prepare_image(img):
 
 
 def resize_image(img):
+    # cut out top/bottom for testing
+    # img = img[100:-50, ...]
 
     im = Image.fromarray(img)
     im = im.resize((Screenshot.IMG_W, Screenshot.IMG_H))
@@ -50,7 +52,7 @@ class Screenshot:
     IMG_H = 66
     IMG_D = 3
 
-    image_array = array.array('B', [0] * (SRC_W * SRC_H * SRC_D));
+    image_array = array.array('B', [0] * (SRC_W * SRC_H * SRC_D))
 
 
 
@@ -186,7 +188,7 @@ def viewer(sample):
     for i in range(len(image_files)):
 
         # joystick
-        print i, " ", joystick_values[i,:]
+        print(i, " ", joystick_values[i,:])
 
         # format data
         plotData.append( joystick_values[i,:] )
@@ -218,13 +220,13 @@ def viewer(sample):
 
 # prepare training data
 def prepare(samples):
-    print "Preparing data"
+    print("Preparing data")
 
     X = []
     y = []
 
     for sample in samples:
-        print sample
+        print(sample)
 
         # load sample
         image_files, joystick_values = load_sample(sample)
@@ -238,14 +240,14 @@ def prepare(samples):
             vec = prepare_image(image)
             X.append(vec)
 
-    print "Saving to file..."
+    print("Saving to file...")
     X = np.asarray(X)
     y = np.concatenate(y)
 
     np.save("data/X", X)
     np.save("data/y", y)
 
-    print "Done!"
+    print("Done!")
     return
 
 
