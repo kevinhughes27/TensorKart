@@ -38,7 +38,7 @@ def resize_image(img):
     return img_as_float(im_arr)
 
 
-class Screenshot:
+class Screenshot(object):
     SRC_W = 640
     SRC_H = 480
     SRC_D = 3
@@ -54,7 +54,7 @@ class Screenshot:
 
 
 
-class XboxController:
+class XboxController(object):
 
     MAX_TRIG_VAL = math.pow(2, 8)
     MAX_JOY_VAL = math.pow(2, 15)

@@ -9,7 +9,7 @@ import gym_mupen64plus
 
 
 # Play
-class Actor:
+class Actor(object):
 
     def __init__(self):
         # Start session
