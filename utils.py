@@ -186,7 +186,7 @@ def viewer(sample):
     for i in range(len(image_files)):
 
         # joystick
-        print i, " ", joystick_values[i,:]
+        print(i, " ", joystick_values[i,:])
 
         # format data
         plotData.append( joystick_values[i,:] )
@@ -218,13 +218,13 @@ def viewer(sample):
 
 # prepare training data
 def prepare(samples):
-    print "Preparing data"
+    print("Preparing data")
 
     X = []
     y = []
 
     for sample in samples:
-        print sample
+        print(sample)
 
         # load sample
         image_files, joystick_values = load_sample(sample)
@@ -238,14 +238,14 @@ def prepare(samples):
             vec = prepare_image(image)
             X.append(vec)
 
-    print "Saving to file..."
+    print("Saving to file...")
     X = np.asarray(X)
     y = np.concatenate(y)
 
     np.save("data/X", X)
     np.save("data/y", y)
 
-    print "Done!"
+    print("Done!")
     return
 
 
