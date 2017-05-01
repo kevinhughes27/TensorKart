@@ -1,7 +1,6 @@
 import tensorflow as tf
+from utils import Screenshot
 
-IMG_W = 200
-IMG_H = 66
 OUT_SHAPE = 5
 
 def weight_variable(shape):
@@ -15,7 +14,7 @@ def bias_variable(shape):
 def conv2d(x, W, stride):
   return tf.nn.conv2d(x, W, strides=[1, stride, stride, 1], padding='VALID')
 
-x = tf.placeholder(tf.float32, shape=[None, IMG_H, IMG_W, 3])
+x = tf.placeholder(tf.float32, shape=[None, Screenshot.IMG_H, Screenshot.IMG_W, Screenshot.IMG_D])
 y_ = tf.placeholder(tf.float32, shape=[None, OUT_SHAPE])
 
 x_image = x
@@ -50,11 +49,14 @@ b_conv5 = bias_variable([64])
 
 h_conv5 = tf.nn.relu(conv2d(h_conv4, W_conv5, 1) + b_conv5)
 
+s = h_conv5.get_shape().as_list()
+flattened_length = s[1] * s[2] * s[3]
+
 #FCL 1
-W_fc1 = weight_variable([1152, 1164])
+W_fc1 = weight_variable([flattened_length, 1164])
 b_fc1 = bias_variable([1164])
 
-h_conv5_flat = tf.reshape(h_conv5, [-1, 1152])
+h_conv5_flat = tf.reshape(h_conv5, [-1, flattened_length])
 h_fc1 = tf.nn.relu(tf.matmul(h_conv5_flat, W_fc1) + b_fc1)
 
 keep_prob = tf.placeholder(tf.float32)

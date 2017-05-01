@@ -1,68 +1,145 @@
 #!/usr/bin/env python
 
 import sys
-import pygame
-
-import wx
-wx.App()
+import array
 
 import numpy as np
+
+from PIL import Image
 
 from skimage.color import rgb2gray
 from skimage.transform import resize
 from skimage.io import imread
+from skimage.util import img_as_float
 
 import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
 
-
-IMG_W = 200
-IMG_H = 66
-
-
-def take_screenshot():
-    screen = wx.ScreenDC()
-    size = screen.GetSize()
-    bmp = wx.Bitmap(size[0], size[1])
-    mem = wx.MemoryDC(bmp)
-    mem.Blit(0, 0, size[0], size[1], screen, 0, 0)
-    return bmp.GetSubBitmap(wx.Rect([0,0],[615,480]))
+from inputs import get_gamepad
+import math
+import threading
 
 
 def prepare_image(img):
-    if(type(img) == wx._core.Bitmap):
-        buf = img.ConvertToImage().GetData()
-        img = np.frombuffer(buf, dtype='uint8')
+    
+    img = img.reshape(Screenshot.SRC_H, Screenshot.SRC_W, Screenshot.SRC_D)
 
-    img = img.reshape(480, 615, 3)
-    img = resize(img, [IMG_H, IMG_W])
-
-    return img
+    return resize_image(img)
 
 
-class XboxController:
+def resize_image(img):
+
+    im = Image.fromarray(img)
+    im = im.resize((Screenshot.IMG_W, Screenshot.IMG_H))
+
+    im_arr = np.frombuffer(im.tobytes(), dtype=np.uint8)
+    im_arr = im_arr.reshape((Screenshot.IMG_H, Screenshot.IMG_W, Screenshot.IMG_D))
+
+    return img_as_float(im_arr)
+
+
+class Screenshot(object):
+    SRC_W = 640
+    SRC_H = 480
+    SRC_D = 3
+
+    OFFSET_X = 0
+    OFFSET_Y = 0
+
+    IMG_W = 200
+    IMG_H = 66
+    IMG_D = 3
+
+    image_array = array.array('B', [0] * (SRC_W * SRC_H * SRC_D));
+
+
+
+class XboxController(object):
+
+    MAX_TRIG_VAL = math.pow(2, 8)
+    MAX_JOY_VAL = math.pow(2, 15)
+
     def __init__(self):
-        try:
-            pygame.init()
-            self.joystick = pygame.joystick.Joystick(0)
-            self.joystick.init()
-        except:
-            print 'unable to connect to Xbox Controller'
+
+        self.LeftJoystickY = 0
+        self.LeftJoystickX = 0
+        self.RightJoystickY = 0
+        self.RightJoystickX = 0
+        self.LeftTrigger = 0
+        self.RightTrigger = 0
+        self.LeftBumper = 0
+        self.RightBumper = 0
+        self.A = 0
+        self.X = 0
+        self.Y = 0
+        self.B = 0
+        self.LeftThumb = 0
+        self.RightThumb = 0
+        self.Back = 0
+        self.Start = 0
+        self.LeftDPad = 0
+        self.RightDPad = 0
+        self.UpDPad = 0
+        self.DownDPad = 0
+
+        self._monitor_thread = threading.Thread(target=self._monitor_controller, args=())
+        self._monitor_thread.daemon = True
+        self._monitor_thread.start()
 
 
     def read(self):
-        pygame.event.pump()
-        x = self.joystick.get_axis(0)
-        y = self.joystick.get_axis(1)
-        a = self.joystick.get_button(0)
-        b = self.joystick.get_button(2) # b=1, x=2
-        rb = self.joystick.get_button(5)
+        x = self.LeftJoystickX
+        y = self.LeftJoystickY
+        a = self.A
+        b = self.X # b=1, x=2
+        rb = self.RightBumper
         return [x, y, a, b, rb]
 
 
-    def manual_override(self):
-        pygame.event.pump()
-        return self.joystick.get_button(4) == 1
+    def _monitor_controller(self):
+        while True:
+            events = get_gamepad()
+            for event in events:
+                if event.code == 'ABS_Y':
+                    self.LeftJoystickY = event.state / XboxController.MAX_JOY_VAL # normalize between -1 and 1
+                elif event.code == 'ABS_X':
+                    self.LeftJoystickX = event.state / XboxController.MAX_JOY_VAL # normalize between -1 and 1
+                elif event.code == 'ABS_RY':
+                    self.RightJoystickY = event.state / XboxController.MAX_JOY_VAL # normalize between -1 and 1
+                elif event.code == 'ABS_RX':
+                    self.RightJoystickX = event.state / XboxController.MAX_JOY_VAL # normalize between -1 and 1
+                elif event.code == 'ABS_Z':
+                    self.LeftTrigger = event.state / XboxController.MAX_TRIG_VAL # normalize between 0 and 1
+                elif event.code == 'ABS_RZ':
+                    self.RightTrigger = event.state / XboxController.MAX_TRIG_VAL # normalize between 0 and 1
+                elif event.code == 'BTN_TL':
+                    self.LeftBumper = event.state
+                elif event.code == 'BTN_TR':
+                    self.RightBumper = event.state
+                elif event.code == 'BTN_SOUTH':
+                    self.A = event.state
+                elif event.code == 'BTN_NORTH':
+                    self.X = event.state
+                elif event.code == 'BTN_WEST':
+                    self.Y = event.state
+                elif event.code == 'BTN_EAST':
+                    self.B = event.state
+                elif event.code == 'BTN_THUMBL':
+                    self.LeftThumb = event.state
+                elif event.code == 'BTN_THUMBR':
+                    self.RightThumb = event.state
+                elif event.code == 'BTN_SELECT':
+                    self.Back = event.state
+                elif event.code == 'BTN_START':
+                    self.Start = event.state
+                elif event.code == 'BTN_TRIGGER_HAPPY1':
+                    self.LeftDPad = event.state
+                elif event.code == 'BTN_TRIGGER_HAPPY2':
+                    self.RightDPad = event.state
+                elif event.code == 'BTN_TRIGGER_HAPPY3':
+                    self.UpDPad = event.state
+                elif event.code == 'BTN_TRIGGER_HAPPY4':
+                    self.DownDPad = event.state
 
 
 class Data(object):

@@ -10,7 +10,7 @@ from datetime import datetime
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_wxagg import FigureCanvasWxAgg as FigCanvas
 
-from utils import take_screenshot, XboxController
+from utils import Screenshot, XboxController
 
 IDLE_SAMPLE_RATE = 1500
 SAMPLE_RATE = 200
@@ -96,13 +96,19 @@ class MainWindow(wx.Frame):
 
 
     def poll(self):
-        self.bmp = take_screenshot()
+        self.bmp = self.take_screenshot()
         self.controller_data = self.controller.read()
         self.update_plot()
 
         if self.recording == True:
             self.save_data()
 
+    def take_screenshot(self):
+        screen = wx.ScreenDC()
+        bmp = wx.Bitmap(Screenshot.SRC_W, Screenshot.SRC_H)
+        mem = wx.MemoryDC(bmp)
+        mem.Blit(0, 0, Screenshot.SRC_W, Screenshot.SRC_H, screen, Screenshot.OFFSET_X, Screenshot.OFFSET_Y)
+        return bmp
 
     def update_plot(self):
         self.plotData.append(self.controller_data) # adds to the end of the list
