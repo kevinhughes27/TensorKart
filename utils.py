@@ -28,6 +28,8 @@ def prepare_image(img):
 
 
 def resize_image(img):
+    # cut out top/bottom for testing
+    # img = img[100:-50, ...]
 
     im = Image.fromarray(img)
     im = im.resize((Screenshot.IMG_W, Screenshot.IMG_H))
@@ -50,7 +52,7 @@ class Screenshot(object):
     IMG_H = 66
     IMG_D = 3
 
-    image_array = array.array('B', [0] * (SRC_W * SRC_H * SRC_D));
+    image_array = array.array('B', [0] * (SRC_W * SRC_H * SRC_D))
 
 
 

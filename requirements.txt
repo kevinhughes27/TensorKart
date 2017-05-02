@@ -1,6 +1,10 @@
 inputs==0.1
-wx==3.0.3
-matplotlib==1.5.2
-numpy==1.10.1
-scikit-image==0.12.3
+wxPython==4.0.0a1
+matplotlib==2.0.0
+numpy==1.12.1
+scikit-image==0.13.0
 termcolor==1.1.0
+keras==2.0.3
+h5py==2.7.0
+tensorflow-gpu==1.0.1
+Pillow==4.1.0
