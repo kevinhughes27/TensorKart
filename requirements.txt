@@ -1,5 +1,5 @@
 inputs==0.1
-wx==3.0.3
+wxPython==4.0.0a1
 matplotlib==1.5.2
 numpy==1.10.1
 scikit-image==0.12.3

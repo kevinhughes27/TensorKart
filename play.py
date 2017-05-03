@@ -86,7 +86,7 @@ if __name__ == '__main__':
     obs = env.reset()
     print('env ready!')
 
-    raw_input('press <ENTER> to quit')
+    input('press <ENTER> to quit')
 
     env.close()
 
