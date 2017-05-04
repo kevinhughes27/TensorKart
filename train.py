@@ -1,39 +1,72 @@
-#!/usr/bin/env python
+# Build a keras neural network and train it
 
-from utils import Data
-import model
-import tensorflow as tf
+import numpy as np
+from keras.models import Sequential
+from keras.layers import Dense, Dropout, Flatten
+from keras.layers import Conv2D
+from keras import optimizers
+from keras import backend as K
+from utils import Screenshot
 
-# Load Training Data
-data = Data()
+# Global variable
+OUT_SHAPE = 5
+INPUT_SHAPE = (Screenshot.IMG_H, Screenshot.IMG_W, Screenshot.IMG_D)
 
-# Start session
-sess = tf.InteractiveSession()
+def customized_loss(y_true, y_pred, loss='euclidean'):
+    # Simply a mean squared error that penalizes large joystick summed values
+    if loss == 'L2':
+        L2_norm_cost = 0.001
+        val = K.mean(K.square((y_pred - y_true)), axis=-1) \
+                    + K.sum(K.square(y_pred), axis=-1)/2 * L2_norm_cost
+    # euclidean distance loss
+    elif loss == 'euclidean':
+        val = K.sqrt(K.sum(K.square(y_pred-y_true), axis=-1))
+    return val
 
-# Learning Functions
-L2NormConst = 0.001
-train_vars = tf.trainable_variables()
-loss = tf.reduce_mean(tf.square(tf.subtract(model.y_, model.y))) + tf.add_n([tf.nn.l2_loss(v) for v in train_vars]) * L2NormConst
-train_step = tf.train.AdamOptimizer(1e-4).minimize(loss)
+def creation_model(keep_prob = 0.8):
+    # create model
+    model = Sequential()
 
-sess.run(tf.global_variables_initializer())
+    # NVIDIA's model
+    model.add(Conv2D(24, kernel_size=(5, 5), strides=(2, 2), activation='relu', input_shape= INPUT_SHAPE))
+    model.add(Conv2D(36, kernel_size=(5, 5), strides=(2, 2), activation='relu'))
+    model.add(Conv2D(48, kernel_size=(5, 5), strides=(2, 2), activation='relu'))
+    model.add(Conv2D(64, kernel_size=(3, 3), activation='relu'))
+    model.add(Conv2D(64, kernel_size=(3, 3), activation='relu'))
+    model.add(Flatten())
+    model.add(Dense(1164, activation='relu'))
+    drop_out = 1 - keep_prob
+    model.add(Dropout(drop_out))
+    model.add(Dense(100, activation='relu'))
+    model.add(Dropout(drop_out))
+    model.add(Dense(50, activation='relu'))
+    model.add(Dropout(drop_out))
+    model.add(Dense(10, activation='relu'))
+    model.add(Dropout(drop_out))
+    model.add(Dense(OUT_SHAPE, activation='softsign'))
 
-# Training loop variables
-epochs = 100
-batch_size = 50
-num_samples = data.num_examples
-step_size = int(num_samples / batch_size)
+    return model
 
-for epoch in range(epochs):
-    for i in range(step_size):
-        batch = data.next_batch(batch_size)
 
-        train_step.run(feed_dict={model.x: batch[0], model.y_: batch[1], model.keep_prob: 0.8})
+if __name__ == '__main__':
+    # Load Training Data
+    x_train = np.load("data/X.npy")
+    y_train = np.load("data/y.npy")
 
-        if i%10 == 0:
-          loss_value = loss.eval(feed_dict={model.x:batch[0], model.y_: batch[1], model.keep_prob: 1.0})
-          print("epoch: %d step: %d loss: %g"%(epoch, epoch * batch_size + i, loss_value))
+    # Set none important second parameter to 0, or remove from fitting procedure
+    # y_train[:, 1] = 0
 
-# Save the Model
-saver = tf.train.Saver()
-saver.save(sess, "model.ckpt")
+    print(x_train.shape[0], 'train samples')
+
+    # Training loop variables
+    epochs = 100
+    batch_size = 50
+
+    model = creation_model()
+    model.compile(loss=customized_loss, optimizer=optimizers.adam())
+    # fit (train) model
+    model.fit(x_train, y_train, batch_size=batch_size, epochs=epochs, shuffle=True, validation_split=0.1)
+
+    # save whole model or only save weights and load mode from this file
+    # model.save('model.h5')
+    model.save_weights('model_weights.h5')
