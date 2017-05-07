@@ -1,20 +1,16 @@
-# let the model play mariokart while being watched
-
 from utils import resize_image, XboxController
 from termcolor import cprint
 import gym
 import gym_mupen64plus
-from keras.models import load_model  # if wanted
 from train import creation_model
 import numpy as np
 
 # Play
-class Actor:
+class Actor(object):
 
     def __init__(self):
-        # Load in the model and evaluate it or load in model from train_keras.py and load in the trained weights
-        # self.model = load_model('model_test.h5')
-        self.model = creation_model(keep_prob=1)    # no dropout
+        # Load in model from train.py and load in the trained weights
+        self.model = creation_model(keep_prob=1) # no dropout
         self.model.load_weights('model_weights.h5')
 
         # Init contoller for manual override
@@ -28,14 +24,13 @@ class Actor:
         if not manual_override:
             ## Look
             vec = resize_image(obs)
-            vec = np.expand_dims(vec, axis=0)  # expand dimensions for predict, it wants (1,66,200,3) not (66, 200, 3)
+            vec = np.expand_dims(vec, axis=0) # expand dimensions for predict, it wants (1,66,200,3) not (66, 200, 3)
             ## Think
-            joystick = self.model.predict(vec, batch_size=1)  # proces input image 1 by 1
-            joystick = np.squeeze(joystick)  # remove the extra dimension [[0, 1 ]] -> [0, 1], not sure how acquired
+            joystick = self.model.predict(vec, batch_size=1)[0]
 
         else:
             joystick = self.real_controller.read()
-            joystick[1] *= -1  # flip y (this is in the config when it runs normally)
+            joystick[1] *= -1 # flip y (this is in the config when it runs normally)
 
 
         ## Act
