@@ -1,5 +1,3 @@
-# Build a keras neural network and train it
-
 import numpy as np
 from keras.models import Sequential
 from keras.layers import Dense, Dropout, Flatten
@@ -12,6 +10,7 @@ from utils import Screenshot
 OUT_SHAPE = 5
 INPUT_SHAPE = (Screenshot.IMG_H, Screenshot.IMG_W, Screenshot.IMG_D)
 
+
 def customized_loss(y_true, y_pred, loss='euclidean'):
     # Simply a mean squared error that penalizes large joystick summed values
     if loss == 'L2':
@@ -23,8 +22,8 @@ def customized_loss(y_true, y_pred, loss='euclidean'):
         val = K.sqrt(K.sum(K.square(y_pred-y_true), axis=-1))
     return val
 
+
 def creation_model(keep_prob = 0.8):
-    # create model
     model = Sequential()
 
     # NVIDIA's model
@@ -53,9 +52,6 @@ if __name__ == '__main__':
     x_train = np.load("data/X.npy")
     y_train = np.load("data/y.npy")
 
-    # Set none important second parameter to 0, or remove from fitting procedure
-    # y_train[:, 1] = 0
-
     print(x_train.shape[0], 'train samples')
 
     # Training loop variables
@@ -64,9 +60,6 @@ if __name__ == '__main__':
 
     model = creation_model()
     model.compile(loss=customized_loss, optimizer=optimizers.adam())
-    # fit (train) model
     model.fit(x_train, y_train, batch_size=batch_size, epochs=epochs, shuffle=True, validation_split=0.1)
 
-    # save whole model or only save weights and load mode from this file
-    # model.save('model.h5')
     model.save_weights('model_weights.h5')
