@@ -1,8 +1,10 @@
+#!/usr/bin/env python
+
 from utils import resize_image, XboxController
 from termcolor import cprint
 import gym
 import gym_mupen64plus
-from train import creation_model
+from train import create_model
 import numpy as np
 
 # Play
@@ -10,7 +12,7 @@ class Actor(object):
 
     def __init__(self):
         # Load in model from train.py and load in the trained weights
-        self.model = creation_model(keep_prob=1) # no dropout
+        self.model = create_model(keep_prob=1) # no dropout
         self.model.load_weights('model_weights.h5')
 
         # Init contoller for manual override
