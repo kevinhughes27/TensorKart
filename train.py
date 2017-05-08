@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 import numpy as np
 from keras.models import Sequential
 from keras.layers import Dense, Dropout, Flatten
@@ -23,7 +25,7 @@ def customized_loss(y_true, y_pred, loss='euclidean'):
     return val
 
 
-def creation_model(keep_prob = 0.8):
+def create_model(keep_prob = 0.8):
     model = Sequential()
 
     # NVIDIA's model
@@ -58,7 +60,7 @@ if __name__ == '__main__':
     epochs = 100
     batch_size = 50
 
-    model = creation_model()
+    model = create_model()
     model.compile(loss=customized_loss, optimizer=optimizers.adam())
     model.fit(x_train, y_train, batch_size=batch_size, epochs=epochs, shuffle=True, validation_split=0.1)
 
