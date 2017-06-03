@@ -6,11 +6,11 @@ from keras.layers import Dense, Dropout, Flatten
 from keras.layers import Conv2D
 from keras import optimizers
 from keras import backend as K
-from utils import Screenshot
+from utils import Sample
 
 # Global variable
 OUT_SHAPE = 5
-INPUT_SHAPE = (Screenshot.IMG_H, Screenshot.IMG_W, Screenshot.IMG_D)
+INPUT_SHAPE = (Sample.IMG_H, Sample.IMG_W, Sample.IMG_D)
 
 
 def customized_loss(y_true, y_pred, loss='euclidean'):
