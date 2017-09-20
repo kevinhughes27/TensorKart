@@ -5,7 +5,6 @@ from termcolor import cprint
 
 import gym
 import gym_mupen64plus
-from train import create_model
 import numpy as np
 
 # Play
@@ -13,6 +12,7 @@ class Actor(object):
 
     def __init__(self):
         # Load in model from train.py and load in the trained weights
+        from train import create_model
         self.model = create_model(keep_prob=1) # no dropout
         self.model.load_weights('model_weights.h5')
 
@@ -57,7 +57,8 @@ class Actor(object):
 
 
 if __name__ == '__main__':
-    env = gym.make('Mario-Kart-Royal-Raceway-v0')
+    env = gym.make('Mario-Kart-Luigi-Raceway-v0')
+    #env = gym.make('Mario-Kart-Royal-Raceway-v0')
 
     obs = env.reset()
     env.render()
