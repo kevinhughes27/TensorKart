@@ -21,13 +21,9 @@ import threading
 
 
 def resize_image(img):
-    im = Image.fromarray(img, 'L')
-    im = im.resize((Sample.IMG_W, Sample.IMG_H))
-
-    im_arr = np.frombuffer(im.tobytes(), dtype=np.uint8)
-    im_arr = im_arr.reshape((Sample.IMG_H, Sample.IMG_W, Sample.IMG_D))
-
-    return img_as_float(im_arr)
+     im = resize(img, (Sample.IMG_H, Sample.IMG_W, Sample.IMG_D))
+     im_arr = im.reshape((Sample.IMG_H, Sample.IMG_W, Sample.IMG_D))
+     return im_arr
 
 
 class Screenshot:
