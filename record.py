@@ -107,6 +107,7 @@ class MainWindow():
 
         if self.recording == True:
             self.save_data()
+            self.t += 1
 
 
     def take_screenshot(self):
@@ -130,14 +131,8 @@ class MainWindow():
         image_file = self.outputDir+'/'+'img_'+str(self.t)+'.png'
         self.img.save(image_file)
 
-        # make / open outfile
-        outfile = open(self.outputDir+'/'+'data.csv', 'a')
-
-        # write line
-        outfile.write( image_file + ',' + ','.join(map(str, self.controller_data)) + '\n' )
-        outfile.close()
-
-        self.t += 1
+        # write csv line
+        self.outfile.write( image_file + ',' + ','.join(map(str, self.controller_data)) + '\n' )
 
 
     def draw(self):
@@ -171,9 +166,12 @@ class MainWindow():
             self.t = 0 # Reset our counter for the new recording
             self.record_button["text"] = "Stop"
             self.rate = self.sample_rate
+            # make / open outfile
+            self.outfile = open(self.outputDir+'/'+'data.csv', 'a')
         else:
             self.record_button["text"] = "Record"
             self.rate = self.idle_rate
+            self.outfile.close()
 
         # un pause timer
         self.pause_timer = False
