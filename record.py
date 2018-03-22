@@ -119,7 +119,7 @@ class MainWindow():
                                 "height": Screenshot.SRC_H})
 
         # Create the Image
-        return Image.frombytes('RGB', sct_img.size, bytes(sct_img.raw), 'raw', 'BGRX')
+        return Image.frombytes('RGB', sct_img.size, sct_img.bgra, 'raw', 'BGRX')
 
 
     def update_plot(self):
