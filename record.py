@@ -58,11 +58,11 @@ class MainWindow():
         message.pack(side=tk.TOP, padx=5)
         bottom_half = tk.Frame(self.root)
         bottom_half.pack(side=tk.LEFT, padx=5, pady=10)
-        
+
         # Images
         self.img_panel = tk.Label(top_half, image=ImageTk.PhotoImage("RGB", size=IMAGE_SIZE)) # Placeholder
         self.img_panel.pack(side = tk.LEFT, expand=False, padx=5)
-        
+
         # Joystick
         self.init_plot()
         self.PlotCanvas = FigCanvas(figure=self.fig, master=top_half)
@@ -76,11 +76,11 @@ class MainWindow():
         self.txt_outputDir = tk.Entry(textframe, textvariable=self.outputDirStrVar, width=100)
         self.txt_outputDir.pack(side=tk.LEFT)
         self.outputDirStrVar.set("samples/" + datetime.now().strftime('%Y-%m-%d_%H:%M:%S'))
-        
+
         self.record_button = ttk.Button(bottom_half, text="Record", command=self.on_btn_record)
         self.record_button.pack(side = tk.LEFT, padx=5)
-    
-    
+
+
     def init_plot(self):
         self.plotMem = 50 # how much data to keep on the plot
         self.plotData = [[0] * (5)] * self.plotMem # mem storage for plot
@@ -197,7 +197,7 @@ class MainWindow():
                     # delete & re-make the dir:
                     shutil.rmtree(self.outputDir)
                     os.mkdir(self.outputDir)
- 
+
                 # answer was 'no', so do not overwrite the data
                 else:
                     should_record = False
