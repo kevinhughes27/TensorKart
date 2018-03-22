@@ -113,8 +113,8 @@ class MainWindow():
     def take_screenshot(self):
         with mss.mss() as sct:
             # Get raw pixels from the screen
-            sct_img = sct.grab({   "top": Screenshot.OFFSET_X,
-                                  "left": Screenshot.OFFSET_Y,
+            sct_img = sct.grab({   "top": Screenshot.OFFSET_Y,
+                                  "left": Screenshot.OFFSET_X,
                                  "width": Screenshot.SRC_W,
                                 "height": Screenshot.SRC_H})
 
