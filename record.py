@@ -3,26 +3,35 @@
 import numpy as np
 import os
 import shutil
-import wx
+import mss
 import matplotlib
-matplotlib.use('WXAgg')
+matplotlib.use('TkAgg')
 from datetime import datetime
 from matplotlib.figure import Figure
-from matplotlib.backends.backend_wxagg import FigureCanvasWxAgg as FigCanvas
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg as FigCanvas
+
+from PIL import ImageTk, Image
+
+import Tkinter as tk
+import ttk
+import tkMessageBox
 
 from utils import Screenshot, XboxController
 
+IMAGE_SIZE = (320, 240)
 IDLE_SAMPLE_RATE = 1500
 SAMPLE_RATE = 200
 
-class MainWindow(wx.Frame):
+class MainWindow():
     """ Main frame of the application
     """
-    title = 'Data Acquisition'
-
 
     def __init__(self):
-        wx.Frame.__init__(self, None, title=self.title, size=(660,330))
+        self.root = tk.Tk()
+
+        self.root.title('Data Acquisition')
+        self.root.geometry("660x325")
+        self.root.resizable(False, False)
 
         # Init controller
         self.controller = XboxController()
@@ -31,54 +40,47 @@ class MainWindow(wx.Frame):
         self.create_main_panel()
 
         # Timer
-        self.timer = wx.Timer(self)
-        self.Bind(wx.EVT_TIMER, self.on_timer, self.timer)
-        self.rate = SAMPLE_RATE
+        self.rate = IDLE_SAMPLE_RATE
+        self.sample_rate = SAMPLE_RATE
         self.idle_rate = IDLE_SAMPLE_RATE
-        self.timer.Start(self.idle_rate)
-
         self.recording = False
         self.t = 0
+        self.pause_timer = False
+        self.on_timer()
 
+        self.root.mainloop()
 
     def create_main_panel(self):
         # Panels
-        self.img_panel = wx.Panel(self)
-        self.joy_panel = wx.Panel(self)
-        self.record_panel = wx.Panel(self)
-
+        top_half = tk.Frame(self.root)
+        top_half.pack(side=tk.TOP, expand=True, padx=5, pady=5)
+        message = tk.Label(self.root, text="(Note: UI updates are disabled while recording)")
+        message.pack(side=tk.TOP, padx=5)
+        bottom_half = tk.Frame(self.root)
+        bottom_half.pack(side=tk.LEFT, padx=5, pady=10)
+        
         # Images
-        img = wx.Image(320,240)
-        self.image_widget = wx.StaticBitmap(self.img_panel, wx.ID_ANY, wx.Bitmap(img))
-
+        self.img_panel = tk.Label(top_half, image=ImageTk.PhotoImage("RGB", size=IMAGE_SIZE)) # Placeholder
+        self.img_panel.pack(side = tk.LEFT, expand=False, padx=5)
+        
         # Joystick
         self.init_plot()
-        self.PlotCanvas = FigCanvas(self.joy_panel, wx.ID_ANY, self.fig)
+        self.PlotCanvas = FigCanvas(figure=self.fig, master=top_half)
+        self.PlotCanvas.get_tk_widget().pack(side=tk.RIGHT, expand=False, padx=5)
 
         # Recording
-        self.txt_outputDir = wx.TextCtrl(self.record_panel, wx.ID_ANY, pos=(5,0), size=(320,30))
-        uid = datetime.now().strftime('%Y-%m-%d_%H:%M:%S')
-        self.txt_outputDir.ChangeValue("samples/" + uid)
-
-        self.btn_record = wx.Button(self.record_panel, wx.ID_ANY, label="Record", pos=(335,0), size=(100,30))
-        self.Bind(wx.EVT_BUTTON, self.on_btn_record, self.btn_record)
-        self.Bind(wx.EVT_UPDATE_UI, self.on_update_btn_record, self.btn_record)
-
-        # sizers
-        sizer = wx.BoxSizer(wx.HORIZONTAL)
-        sizer.Add(self.img_panel, 0, wx.ALL, 5)
-        sizer.Add(self.joy_panel, 0, wx.ALL, 5)
-
-        mainSizer_v = wx.BoxSizer(wx.VERTICAL)
-        mainSizer_v.Add(sizer, 0 , wx.ALL, 5)
-        mainSizer_v.Add(self.record_panel, 0 , wx.ALL, 5)
-
-        # finalize layout
-        self.SetAutoLayout(True)
-        self.SetSizer(mainSizer_v)
-        self.Layout()
-
-
+        textframe = tk.Frame(bottom_half, width=332, height=15, padx=5)
+        textframe.pack(side=tk.LEFT)
+        textframe.pack_propagate(0)
+        self.outputDirStrVar = tk.StringVar()
+        self.txt_outputDir = tk.Entry(textframe, textvariable=self.outputDirStrVar, width=100)
+        self.txt_outputDir.pack(side=tk.LEFT)
+        self.outputDirStrVar.set("samples/" + datetime.now().strftime('%Y-%m-%d_%H:%M:%S'))
+        
+        self.record_button = ttk.Button(bottom_half, text="Record", command=self.on_btn_record)
+        self.record_button.pack(side = tk.LEFT, padx=5)
+    
+    
     def init_plot(self):
         self.plotMem = 50 # how much data to keep on the plot
         self.plotData = [[0] * (5)] * self.plotMem # mem storage for plot
@@ -87,28 +89,37 @@ class MainWindow(wx.Frame):
         self.axes = self.fig.add_subplot(111)
 
 
-    def on_timer(self, event):
+    def on_timer(self):
         self.poll()
 
         # stop drawing if recording to avoid slow downs
         if self.recording == False:
             self.draw()
 
+        if not self.pause_timer:
+            self.root.after(self.rate, self.on_timer)
+
 
     def poll(self):
-        self.bmp = self.take_screenshot()
+        self.img = self.take_screenshot()
         self.controller_data = self.controller.read()
         self.update_plot()
 
         if self.recording == True:
             self.save_data()
 
+
     def take_screenshot(self):
-        screen = wx.ScreenDC()
-        bmp = wx.Bitmap(Screenshot.SRC_W, Screenshot.SRC_H)
-        mem = wx.MemoryDC(bmp)
-        mem.Blit(0, 0, Screenshot.SRC_W, Screenshot.SRC_H, screen, Screenshot.OFFSET_X, Screenshot.OFFSET_Y)
-        return bmp
+        with mss.mss() as sct:
+            # Get raw pixels from the screen
+            sct_img = sct.grab({   "top": Screenshot.OFFSET_X,
+                                  "left": Screenshot.OFFSET_Y,
+                                 "width": Screenshot.SRC_W,
+                                "height": Screenshot.SRC_H})
+
+            # Create the Image
+            return Image.frombytes('RGB', sct_img.size, bytes(sct_img.raw), 'raw', 'BGRX')
+
 
     def update_plot(self):
         self.plotData.append(self.controller_data) # adds to the end of the list
@@ -117,7 +128,7 @@ class MainWindow(wx.Frame):
 
     def save_data(self):
         image_file = self.outputDir+'/'+'img_'+str(self.t)+'.png'
-        self.bmp.SaveFile(image_file, wx.BITMAP_TYPE_PNG)
+        self.img.save(image_file)
 
         # make / open outfile
         outfile = open(self.outputDir+'/'+'data.csv', 'a')
@@ -131,9 +142,9 @@ class MainWindow(wx.Frame):
 
     def draw(self):
         # Image
-        img = self.bmp.ConvertToImage()
-        img = img.Rescale(320,240)
-        self.image_widget.SetBitmap( img.ConvertToBitmap() )
+        self.img.thumbnail(IMAGE_SIZE, Image.ANTIALIAS) # Resize
+        self.img_panel.img = ImageTk.PhotoImage(self.img)
+        self.img_panel['image'] = self.img_panel.img
 
         # Joystick
         x = np.asarray(self.plotData)
@@ -147,74 +158,59 @@ class MainWindow(wx.Frame):
         self.PlotCanvas.draw()
 
 
-    def on_update_btn_record(self, event):
-        label = "Stop" if self.recording else "Record"
-        self.btn_record.SetLabel(label)
-
-
-    def on_btn_record(self, event):
+    def on_btn_record(self):
         # pause timer
-        self.timer.Stop()
-
-        # switch state
-        self.recording = not self.recording
+        self.pause_timer = True
 
         if self.recording:
+            self.recording = False
+        else:
             self.start_recording()
 
-        # un pause timer
         if self.recording:
-            self.timer.Start(self.rate)
+            self.t = 0 # Reset our counter for the new recording
+            self.record_button["text"] = "Stop"
+            self.rate = self.sample_rate
         else:
-            self.timer.Start(self.idle_rate)
+            self.record_button["text"] = "Record"
+            self.rate = self.idle_rate
+
+        # un pause timer
+        self.pause_timer = False
+        self.on_timer()
 
 
     def start_recording(self):
+        should_record = True
+
         # check that a dir has been specified
-        if self.txt_outputDir.IsEmpty():
-
-            msg = wx.MessageDialog(self, 'Specify the Output Directory', 'Error', wx.OK | wx.ICON_ERROR)
-            msg.ShowModal() == wx.ID_YES
-            msg.Destroy()
-
-            self.recording = False
+        if not self.outputDirStrVar.get():
+            tkMessageBox.showerror(title='Error', message='Specify the Output Directory', parent=self.root)
+            should_record = False
 
         else: # a directory was specified
-            self.outputDir = self.txt_outputDir.GetValue()
-            self.t = 0
+            self.outputDir = self.outputDirStrVar.get()
 
-            # check if path exists - ie may be saving over data
+            # check if path exists - i.e. may be saving over data
             if os.path.exists(self.outputDir):
 
-                msg = wx.MessageDialog(self, 'Output Directory Exists - Overwrite Data?', 'Yes or No', wx.YES_NO | wx.ICON_QUESTION)
-                result = msg.ShowModal() == wx.ID_YES
-                msg.Destroy()
-
-                # overwrite the data
-                if result == True:
-
-                    # delete the dir
+                # overwrite the data, yes/no?
+                if tkMessageBox.askyesno(title='Warning!', message='Output Directory Exists - Overwrite Data?', parent=self.root):
+                    # delete & re-make the dir:
                     shutil.rmtree(self.outputDir)
-
-                    # re-make dir
                     os.mkdir(self.outputDir)
+ 
+                # answer was 'no', so do not overwrite the data
+                else:
+                    should_record = False
+                    self.txt_outputDir.focus_set()
 
-                # do not overwrite the data
-                else: # result == False
-                    self.recording = False
-                    self.txt_outputDir.SetFocus()
-
-            # no directory so make one
+            # directory doesn't exist, so make one
             else:
                 os.mkdir(self.outputDir)
 
-
-    def on_exit(self, event):
-        self.Destroy()
+        self.recording = should_record
 
 
 if __name__ == '__main__':
-    app = wx.App()
-    app.frame = MainWindow()
-    app.frame.Show()
-    app.MainLoop()
+    app = MainWindow()
