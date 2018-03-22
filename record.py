@@ -28,6 +28,7 @@ class MainWindow():
 
     def __init__(self):
         self.root = tk.Tk()
+        self.sct = mss.mss()
 
         self.root.title('Data Acquisition')
         self.root.geometry("660x325")
@@ -111,15 +112,14 @@ class MainWindow():
 
 
     def take_screenshot(self):
-        with mss.mss() as sct:
-            # Get raw pixels from the screen
-            sct_img = sct.grab({   "top": Screenshot.OFFSET_Y,
+        # Get raw pixels from the screen
+        sct_img = self.sct.grab({  "top": Screenshot.OFFSET_Y,
                                   "left": Screenshot.OFFSET_X,
                                  "width": Screenshot.SRC_W,
                                 "height": Screenshot.SRC_H})
 
-            # Create the Image
-            return Image.frombytes('RGB', sct_img.size, bytes(sct_img.raw), 'raw', 'BGRX')
+        # Create the Image
+        return Image.frombytes('RGB', sct_img.size, bytes(sct_img.raw), 'raw', 'BGRX')
 
 
     def update_plot(self):
