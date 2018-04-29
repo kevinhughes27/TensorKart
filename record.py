@@ -12,9 +12,20 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg as FigCanvas
 
 from PIL import ImageTk, Image
 
-import Tkinter as tk
-import ttk
-import tkMessageBox
+import sys
+
+PY3_OR_LATER = sys.version_info[0] >= 3
+
+if PY3_OR_LATER:
+    # Python 3 specific definitions
+    import tkinter as tk
+    import tkinter.ttk as ttk
+    import tkinter.messagebox as tkMessageBox
+else:
+    # Python 2 specific definitions
+    import Tkinter as tk
+    import ttk
+    import tkMessageBox
 
 from utils import Screenshot, XboxController
 
@@ -86,7 +97,7 @@ class MainWindow():
         self.plotMem = 50 # how much data to keep on the plot
         self.plotData = [[0] * (5)] * self.plotMem # mem storage for plot
 
-        self.fig = Figure((4,3))
+        self.fig = Figure(figsize=(4,3), dpi=80) # 320,240
         self.axes = self.fig.add_subplot(111)
 
 
@@ -143,13 +154,12 @@ class MainWindow():
 
         # Joystick
         x = np.asarray(self.plotData)
+        self.axes.clear()
         self.axes.plot(range(0,self.plotMem), x[:,0], 'r')
-        self.axes.hold(True)
         self.axes.plot(range(0,self.plotMem), x[:,1], 'b')
         self.axes.plot(range(0,self.plotMem), x[:,2], 'g')
         self.axes.plot(range(0,self.plotMem), x[:,3], 'k')
         self.axes.plot(range(0,self.plotMem), x[:,4], 'y')
-        self.axes.hold(False)
         self.PlotCanvas.draw()
 
 
