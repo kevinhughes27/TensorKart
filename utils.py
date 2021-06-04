@@ -213,7 +213,7 @@ def prepare(samples):
     print(f"There are {numpics} samples")
     
     idx = 0
-    for sample in samples:
+for idx, sample in enumerate(samples):
         print(sample)
 
         # load sample
