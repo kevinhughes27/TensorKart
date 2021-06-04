@@ -207,10 +207,10 @@ def prepare(samples):
     
     for sample in samples:
         image_files = load_imgs(sample)
-        numpics += len(image_files)
+        num_samples += len(image_files)
         
-    X = np.empty(shape=(numpics,Sample.IMG_H,Sample.IMG_W,3),dtype=np.uint8)
-    print(f"There are {numpics} samples")
+    X = np.empty(shape=(num_samples,Sample.IMG_H,Sample.IMG_W,3),dtype=np.uint8)
+    print(f"There are {num_samples} samples")
     
     idx = 0
 for idx, sample in enumerate(samples):
@@ -227,7 +227,7 @@ for idx, sample in enumerate(samples):
             image = imread(image_file)
             vec = resize_image(image)
             X[idx] = vec
-            idx += 1
+            
 
     print("Saving to file...")
     y = np.concatenate(y)
