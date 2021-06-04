@@ -203,10 +203,17 @@ def viewer(sample):
 def prepare(samples):
     print("Preparing data")
 
-    X = []
     y = []
-
+    
     for sample in samples:
+        image_files = load_imgs(sample)
+        num_samples += len(image_files)
+        
+    X = np.empty(shape=(num_samples,Sample.IMG_H,Sample.IMG_W,3),dtype=np.uint8)
+    print(f"There are {num_samples} samples")
+    
+    idx = 0
+for idx, sample in enumerate(samples):
         print(sample)
 
         # load sample
@@ -219,10 +226,10 @@ def prepare(samples):
         for image_file in image_files:
             image = imread(image_file)
             vec = resize_image(image)
-            X.append(vec)
+            X[idx] = vec
+            
 
     print("Saving to file...")
-    X = np.asarray(X)
     y = np.concatenate(y)
 
     np.save("data/X", X)
