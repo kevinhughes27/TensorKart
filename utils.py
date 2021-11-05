@@ -156,6 +156,9 @@ def load_sample(sample):
     joystick_values = np.loadtxt(sample + '/data.csv', delimiter=',', usecols=(1,2,3,4,5))
     return image_files, joystick_values
 
+def load_imgs(sample):
+    image_files = np.loadtxt(sample + '/data.csv', delimiter=',', dtype=str, usecols=(0,))
+    return image_files
 
 # training data viewer
 def viewer(sample):
