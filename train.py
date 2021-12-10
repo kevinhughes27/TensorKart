@@ -8,6 +8,7 @@ from tensorflow.keras.layers import Conv2D
 from tensorflow.keras import optimizers
 from tensorflow.keras import backend as K
 from tensorflow.keras.callbacks import ModelCheckpoint
+from utils import Sample
 
 # Global variable
 OUT_SHAPE = 5
