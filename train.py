@@ -64,7 +64,7 @@ if __name__ == '__main__':
 
     model = create_model()
     
-    checkpoint = ModelCheckpoint("model_weights.h5", monitor='val_loss', verbose=1, save_best_only=True, mode='min')
+    checkpoint = ModelCheckpoint('model_weights.h5', monitor='val_loss', verbose=1, save_best_only=True, mode='min')
     callbacks_list = [checkpoint]
     
     model.compile(loss=customized_loss, optimizer=optimizers.adam())
