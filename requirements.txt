@@ -1,10 +1,9 @@
 inputs==0.1
 mss==3.2.0
 matplotlib==1.5.2
-numpy==1.10.1
+numpy==1.19.5
 scikit-image==0.12.3
 termcolor==1.1.0
-keras==2.0.3
 h5py==2.7.0
-tensorflow-gpu==1.0.1
+tensorflow==2.5.0
 Pillow==4.1.0
