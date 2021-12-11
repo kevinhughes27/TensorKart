@@ -32,6 +32,7 @@ from utils import Screenshot, XboxController
 IMAGE_SIZE = (320, 240)
 IDLE_SAMPLE_RATE = 1500
 SAMPLE_RATE = 200
+IMAGE_TYPE = ".png"
 
 class MainWindow():
     """ Main frame of the application
@@ -139,7 +140,7 @@ class MainWindow():
 
 
     def save_data(self):
-        image_file = self.outputDir+'/'+'img_'+str(self.t)+'.png'
+        image_file = self.outputDir+'/'+'img_'+str(self.t)+IMAGE_TYPE
         self.img.save(image_file)
 
         # write csv line
