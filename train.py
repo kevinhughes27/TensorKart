@@ -1,11 +1,13 @@
 #!/usr/bin/env python
 
 import numpy as np
-from keras.models import Sequential
-from keras.layers import Dense, Dropout, Flatten
-from keras.layers import Conv2D
-from keras import optimizers
-from keras import backend as K
+import tensorflow as tf
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Dense, Dropout, Flatten
+from tensorflow.keras.layers import Conv2D
+from tensorflow.keras import optimizers
+from tensorflow.keras import backend as K
+from tensorflow.keras.callbacks import ModelCheckpoint
 from utils import Sample
 
 # Global variable
@@ -61,7 +63,9 @@ if __name__ == '__main__':
     batch_size = 50
 
     model = create_model()
+    
+    checkpoint = ModelCheckpoint('model_weights.h5', monitor='val_loss', verbose=1, save_best_only=True, mode='min')
+    callbacks_list = [checkpoint]
+    
     model.compile(loss=customized_loss, optimizer=optimizers.adam())
-    model.fit(x_train, y_train, batch_size=batch_size, epochs=epochs, shuffle=True, validation_split=0.1)
-
-    model.save_weights('model_weights.h5')
+    model.fit(x_train, y_train, batch_size=batch_size, epochs=epochs, shuffle=True, validation_split=0.1, callbacks=callbacks_list)
