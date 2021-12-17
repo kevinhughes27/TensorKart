@@ -80,6 +80,16 @@ Future Work / Ideas:
 * Deep learning is all about data; perhaps a community could form around collecting a large amount of data and pushing the performance of this AI.
 
 
+Related Projects:
+--------------------
+[`Xbox Game AI`](https://github.com/mgagvani/Xbox-Game-AI) - Uses [`PYXInput`](https://github.com/bayangan1991/PYXInput) for direct control of any Xbox/PC game.
+
+[`SerpentAI`](https://github.com/SerpentAI/SerpentAI) - Game Agent Framework to create AIs for any game.
+
+[`Donkey Gym`](https://github.com/tawnkramer/gym-donkeycar) - OpenAI Gym Environments for self-driving "[`Donkey Car`](https://github.com/autorope/donkeycar)". 
+
+[`AirSim`](https://github.com/microsoft/AirSim) - An Unreal Engine simulator for autonoumous vehicles.
+
 Special Thanks To
 -----------------
 * https://github.com/SullyChen/Autopilot-TensorFlow
