@@ -20,10 +20,20 @@ class Actor(object):
         # Init contoller for manual override
         self.real_controller = XboxController()
 
+        # The AI starts OFF (manual) - tap LB to toggle it on/off
+        self.ai_enabled = False
+        self._lb_was = 0
+
     def get_action(self, obs):
 
-        ### determine manual override
-        manual_override = self.real_controller.LeftBumper == 1
+        ### toggle the AI on/off with LB (rising edge)
+        lb = self.real_controller.LeftBumper
+        if lb == 1 and self._lb_was == 0:
+            self.ai_enabled = not self.ai_enabled
+            cprint('AI ' + ('ON' if self.ai_enabled else 'OFF'), 'magenta')
+        self._lb_was = lb
+
+        manual_override = not self.ai_enabled
 
         if not manual_override:
             ## Look
@@ -73,7 +83,12 @@ if __name__ == '__main__':
     # top of it would corrupt the screen capture.
     RENDER = False
 
-    env = gym.make(f'Mario-Kart-{COURSE}-v0', character=CHARACTER)
+    # Whether the menus are driven for you (using the vision anchors) or
+    # you do them yourself (the AI starts off - toggle it with LB). Manual
+    # is simpler for experimenting; auto is for unattended training runs.
+    SKIP_MENU = True
+
+    env = gym.make(f'Mario-Kart-{COURSE}-v0', character=CHARACTER, skip_menu=SKIP_MENU)
 
     obs, info = env.reset()
     if RENDER:
