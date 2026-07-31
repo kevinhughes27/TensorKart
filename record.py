@@ -125,9 +125,12 @@ class MainWindow():
         window_pos = find_emulator_window()
         if window_pos:
             self.offset_x, self.offset_y = window_pos
+            print(f'Emulator window found at {window_pos}')
         else:
             self.offset_x = Screenshot.OFFSET_X
             self.offset_y = Screenshot.OFFSET_Y
+            print('Emulator window not found, capturing from '
+                  f'{self.offset_x},{self.offset_y} (top left corner)')
 
     def take_screenshot(self):
         # Get raw pixels from the screen

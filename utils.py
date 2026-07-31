@@ -31,16 +31,33 @@ class Screenshot(object):
 
 
 def find_emulator_window():
-    """Locate the mupen64plus window (X11 only, needs xdotool) so the
-    screenshot lines up without having to drag the window anywhere"""
+    """Locate the mupen64plus game window (X11 only, needs xdotool and
+    xwininfo) so the screenshot lines up without having to drag the
+    window anywhere"""
     try:
-        out = subprocess.check_output(
-            "xdotool search --onlyvisible --name 'Mupen64Plus' getwindowgeometry --shell",
-            shell=True, universal_newlines=True)
-        geometry = dict(line.split('=') for line in out.strip().splitlines())
-        return int(geometry['X']), int(geometry['Y'])
+        # there may be several matches (menus, dialogs) - the game
+        # window is the one rendering at the capture resolution
+        window_ids = subprocess.check_output(
+            "xdotool search --onlyvisible --name 'Mupen64Plus'",
+            shell=True, universal_newlines=True).split()
+
+        for window_id in window_ids:
+            info = subprocess.check_output(['xwininfo', '-id', window_id],
+                                           universal_newlines=True)
+            geometry = {}
+            for line in info.splitlines():
+                key, _, value = line.partition(':')
+                key = key.strip()
+                if key in ('Absolute upper-left X', 'Absolute upper-left Y', 'Width', 'Height'):
+                    geometry[key] = int(value.strip())
+
+            if (geometry.get('Width') == Screenshot.SRC_W and
+                    geometry.get('Height') == Screenshot.SRC_H):
+                return (geometry['Absolute upper-left X'],
+                        geometry['Absolute upper-left Y'])
     except Exception:
-        return None
+        pass
+    return None
 
 
 class Sample:
