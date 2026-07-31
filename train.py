@@ -3,7 +3,7 @@
 import numpy as np
 import tensorflow as tf
 from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import Dense, Dropout, Flatten
+from tensorflow.keras.layers import Input, Dense, Dropout, Flatten
 from tensorflow.keras.layers import Conv2D
 from tensorflow.keras import optimizers
 from tensorflow.keras import backend as K
@@ -31,7 +31,8 @@ def create_model(keep_prob = 0.8):
     model = Sequential()
 
     # NVIDIA's model
-    model.add(Conv2D(24, kernel_size=(5, 5), strides=(2, 2), activation='relu', input_shape= INPUT_SHAPE))
+    model.add(Input(shape=INPUT_SHAPE))
+    model.add(Conv2D(24, kernel_size=(5, 5), strides=(2, 2), activation='relu'))
     model.add(Conv2D(36, kernel_size=(5, 5), strides=(2, 2), activation='relu'))
     model.add(Conv2D(48, kernel_size=(5, 5), strides=(2, 2), activation='relu'))
     model.add(Conv2D(64, kernel_size=(3, 3), activation='relu'))
@@ -53,7 +54,7 @@ def create_model(keep_prob = 0.8):
 
 if __name__ == '__main__':
     # Load Training Data
-    x_train = np.load("data/X.npy")
+    x_train = np.load("data/X.npy").astype(np.float32) / 255.0
     y_train = np.load("data/y.npy")
 
     print(x_train.shape[0], 'train samples')
@@ -64,8 +65,8 @@ if __name__ == '__main__':
 
     model = create_model()
     
-    checkpoint = ModelCheckpoint('model_weights.h5', monitor='val_loss', verbose=1, save_best_only=True, mode='min')
+    checkpoint = ModelCheckpoint('model_weights.weights.h5', monitor='val_loss', verbose=1, save_best_only=True, save_weights_only=True, mode='min')
     callbacks_list = [checkpoint]
-    
-    model.compile(loss=customized_loss, optimizer=optimizers.adam())
+
+    model.compile(loss=customized_loss, optimizer=optimizers.Adam())
     model.fit(x_train, y_train, batch_size=batch_size, epochs=epochs, shuffle=True, validation_split=0.1, callbacks=callbacks_list)

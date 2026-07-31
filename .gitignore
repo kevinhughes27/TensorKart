@@ -4,6 +4,9 @@ MarioKart64.z64
 *.npy
 checkpoint
 model.ckpt*
+model_weights*
+.venv
+uv.lock
 *.gif
 *.ogv
 *.mp4

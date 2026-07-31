@@ -1,11 +1,9 @@
 #!/usr/bin/env python
 
 import sys
-import array
 
 import numpy as np
 
-from skimage.color import rgb2gray
 from skimage.transform import resize
 from skimage.io import imread
 
@@ -19,8 +17,7 @@ import threading
 
 def resize_image(img):
     im = resize(img, (Sample.IMG_H, Sample.IMG_W, Sample.IMG_D))
-    im_arr = im.reshape((Sample.IMG_H, Sample.IMG_W, Sample.IMG_D))
-    return im_arr
+    return im.astype(np.float32)
 
 
 class Screenshot(object):
@@ -125,32 +122,6 @@ class XboxController(object):
                     self.DownDPad = event.state
 
 
-class Data(object):
-    def __init__(self):
-        self._X = np.load("data/X.npy")
-        self._y = np.load("data/y.npy")
-        self._epochs_completed = 0
-        self._index_in_epoch = 0
-        self._num_examples = self._X.shape[0]
-
-    @property
-    def num_examples(self):
-        return self._num_examples
-
-    def next_batch(self, batch_size):
-        start = self._index_in_epoch
-        self._index_in_epoch += batch_size
-        if self._index_in_epoch > self._num_examples:
-            # Finished epoch
-            self._epochs_completed += 1
-            # Start next epoch
-            start = 0
-            self._index_in_epoch = batch_size
-            assert batch_size <= self._num_examples
-        end = self._index_in_epoch
-        return self._X[start:end], self._y[start:end]
-
-
 def load_sample(sample):
     image_files = np.loadtxt(sample + '/data.csv', delimiter=',', dtype=str, usecols=(0,))
     joystick_values = np.loadtxt(sample + '/data.csv', delimiter=',', usecols=(1,2,3,4,5))
@@ -190,13 +161,11 @@ def viewer(sample):
         # plot
         plt.subplot(122)
         plt.plot(range(i,i+len(plotData)), x[:,0], 'r')
-        plt.hold(True)
         plt.plot(range(i,i+len(plotData)), x[:,1], 'b')
         plt.plot(range(i,i+len(plotData)), x[:,2], 'g')
         plt.plot(range(i,i+len(plotData)), x[:,3], 'k')
         plt.plot(range(i,i+len(plotData)), x[:,4], 'y')
         plt.draw()
-        plt.hold(False)
 
         plt.pause(0.0001) # seconds
         i += 1
@@ -206,16 +175,17 @@ def viewer(sample):
 def prepare(samples):
     print("Preparing data")
 
+    num_samples = 0
     for sample in samples:
-        image_files = load_imgs(sample)
-        num_samples += len(image_files)
+        num_samples += len(load_imgs(sample))
 
     print(f"There are {num_samples} samples")
 
-    X = np.empty(shape=(num_samples, Sample.IMG_H, Sample.IMG_W, 3), dtype=np.uint8)
+    X = np.empty(shape=(num_samples, Sample.IMG_H, Sample.IMG_W, Sample.IMG_D), dtype=np.uint8)
     y = []
 
-    for idx, sample in enumerate(samples):
+    idx = 0
+    for sample in samples:
         print(sample)
 
         # load sample
@@ -227,8 +197,8 @@ def prepare(samples):
         # load, prepare and add images to X
         for image_file in image_files:
             image = imread(image_file)
-            vec = resize_image(image)
-            X[idx] = vec
+            X[idx] = (resize_image(image) * 255).astype(np.uint8)
+            idx += 1
 
     print("Saving to file...")
     y = np.concatenate(y)

@@ -21,14 +21,14 @@ With even a small training set the model is sometimes able to generalize to a ne
 
 Dependencies
 ------------
-* `python` and `pip` then run `pip install -r requirements.txt`
+* `python` and [`uv`](https://docs.astral.sh/uv/) then run `uv sync`
 * `mupen64plus` (install via apt-get)
 
 
 Recording Samples
 -----------------
 1. Start your emulator program (`mupen64plus`) and run Mario Kart 64
-2. Make sure you have a joystick connected and that `mupen64plus` is using the sdl input plugin
+2. Make sure you have a joystick connected and that `mupen64plus` is using the sdl input plugin (Xbox and wired PS4 controllers both work)
 3. Run `record.py`
 4. Make sure the graph responds to joystick input.
 5. Position the emulator window so that the image is captured by the program (top left corner)

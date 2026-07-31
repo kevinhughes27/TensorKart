@@ -12,20 +12,9 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg as FigCanvas
 
 from PIL import ImageTk, Image
 
-import sys
-
-PY3_OR_LATER = sys.version_info[0] >= 3
-
-if PY3_OR_LATER:
-    # Python 3 specific definitions
-    import tkinter as tk
-    import tkinter.ttk as ttk
-    import tkinter.messagebox as tkMessageBox
-else:
-    # Python 2 specific definitions
-    import Tkinter as tk
-    import ttk
-    import tkMessageBox
+import tkinter as tk
+import tkinter.ttk as ttk
+import tkinter.messagebox as tkMessageBox
 
 from utils import Screenshot, XboxController
 
@@ -149,7 +138,7 @@ class MainWindow():
 
     def draw(self):
         # Image
-        self.img.thumbnail(IMAGE_SIZE, Image.ANTIALIAS) # Resize
+        self.img.thumbnail(IMAGE_SIZE, Image.Resampling.LANCZOS) # Resize
         self.img_panel.img = ImageTk.PhotoImage(self.img)
         self.img_panel['image'] = self.img_panel.img
 

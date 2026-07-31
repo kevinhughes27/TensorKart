@@ -14,7 +14,7 @@ class Actor(object):
     def __init__(self):
         # Load in model from train.py and load in the trained weights
         self.model = create_model(keep_prob=1) # no dropout
-        self.model.load_weights('model_weights.h5')
+        self.model.load_weights('model_weights.weights.h5')
 
         # Init contoller for manual override
         self.real_controller = XboxController()
