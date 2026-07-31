@@ -59,10 +59,25 @@ class Actor(object):
 
 
 if __name__ == '__main__':
-    env = gym.make('Mario-Kart-Royal-Raceway-v0')
+    # Which track to race and who to drive as.
+    # Courses: Luigi-Raceway, Moo-Moo-Farm, Koopa-Troopa-Beach, Kalimari-Desert,
+    #          Toads-Turnpike, Frappe-Snowland, Choco-Mountain, Mario-Raceway,
+    #          Wario-Stadium, Sherbet-Land, Royal-Raceway, Bowsers-Castle,
+    #          DKs-Jungle-Parkway, Yoshi-Valley, Banshee-Boardwalk, Rainbow-Road
+    # Characters: mario, luigi, peach, toad, yoshi, d.k., wario, bowser
+    COURSE = 'Luigi-Raceway'
+    CHARACTER = 'mario'
+
+    # Whether to open a second window showing the agent's view. Off by
+    # default: you can watch the emulator itself, and another window on
+    # top of it would corrupt the screen capture.
+    RENDER = False
+
+    env = gym.make(f'Mario-Kart-{COURSE}-v0', character=CHARACTER)
 
     obs, info = env.reset()
-    env.render()
+    if RENDER:
+        env.render()
     print('env ready!')
 
     actor = Actor()
@@ -75,7 +90,8 @@ if __name__ == '__main__':
         action = actor.get_action(obs)
         obs, reward, terminated, truncated, info = env.step(action)
         end_episode = terminated or truncated
-        env.render()
+        if RENDER:
+            env.render()
         total_reward += reward
 
     print('end episode... total reward: ' + str(total_reward))
