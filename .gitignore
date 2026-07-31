@@ -8,6 +8,8 @@ model_weights*
 .venv
 uv.lock
 gym-mupen64plus/
+mupen64plus-core/
+mupen64plus-input-bot/
 *.gif
 *.ogv
 *.mp4
