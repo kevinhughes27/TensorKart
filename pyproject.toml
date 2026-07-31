@@ -1,3 +1,14 @@
+# torch from the CUDA 12.6 index: the default cu130 wheels dropped
+# kernels for Pascal GPUs (GTX 10-series, sm_61)
+[[tool.uv.index]]
+name = "pytorch-cu126"
+url = "https://download.pytorch.org/whl/cu126"
+explicit = true
+
+[tool.uv.sources]
+torch = { index = "pytorch-cu126" }
+torchvision = { index = "pytorch-cu126" }
+
 [project]
 name = "tensorkart"
 version = "0.2.0"
@@ -13,5 +24,6 @@ dependencies = [
     "termcolor",
     "pillow",
     "torch>=2.13.0",
+    "torchvision>=0.28.0", # indexed explicitly alongside torch (cu126)
     "timm>=1.0.28",
 ]
