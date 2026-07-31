@@ -83,9 +83,9 @@ if __name__ == '__main__':
     # top of it would corrupt the screen capture.
     RENDER = False
 
-    # Whether the menus are driven for you (using the vision anchors) or
-    # you do them yourself (the AI starts off - toggle it with LB). Manual
-    # is simpler for experimenting; auto is for unattended training runs.
+    # Whether the env drives the menus automatically (currently
+    # unreliable - see docs/menu-navigation.md in gym-mupen64plus) or
+    # you do them yourself (the AI starts off - toggle it with LB).
     SKIP_MENU = True
 
     env = gym.make(f'Mario-Kart-{COURSE}-v0', character=CHARACTER, skip_menu=SKIP_MENU)
