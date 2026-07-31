@@ -23,6 +23,7 @@ Dependencies
 ------------
 * `python` and [`uv`](https://docs.astral.sh/uv/) then run `uv sync`
 * `mupen64plus` (install via apt-get)
+* for `play.py`: [`gym-mupen64plus`](https://github.com/kevinhughes27/gym-mupen64plus) (modernized fork) - `uv pip install git+https://github.com/kevinhughes27/gym-mupen64plus`
 
 
 Recording Samples

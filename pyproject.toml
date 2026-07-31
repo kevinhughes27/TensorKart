@@ -4,6 +4,7 @@ version = "0.2.0"
 description = "self-driving MarioKart with TensorFlow"
 requires-python = ">=3.10,<3.13"
 dependencies = [
+    "gymnasium",
     "inputs",
     "mss",
     "matplotlib",
