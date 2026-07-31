@@ -10,8 +10,9 @@ from skimage.io import imread
 import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
 
-from inputs import get_gamepad
+from inputs import get_gamepad, devices
 import math
+import subprocess
 import threading
 
 
@@ -29,6 +30,19 @@ class Screenshot(object):
     OFFSET_Y = 0
 
 
+def find_emulator_window():
+    """Locate the mupen64plus window (X11 only, needs xdotool) so the
+    screenshot lines up without having to drag the window anywhere"""
+    try:
+        out = subprocess.check_output(
+            "xdotool search --onlyvisible --name 'Mupen64Plus' getwindowgeometry --shell",
+            shell=True, universal_newlines=True)
+        geometry = dict(line.split('=') for line in out.strip().splitlines())
+        return int(geometry['X']), int(geometry['Y'])
+    except Exception:
+        return None
+
+
 class Sample:
     IMG_W = 200
     IMG_H = 66
@@ -40,6 +54,16 @@ class XboxController(object):
     MAX_JOY_VAL = math.pow(2, 15)
 
     def __init__(self):
+
+        # PS4 controllers report stick axes as 0..255 (center 128) instead of
+        # -32768..32767, and the button names differ from an Xbox pad
+        self._is_ps4 = any('Sony' in gamepad.name for gamepad in devices.gamepads)
+        if self._is_ps4:
+            self._joy_center = 128
+            self._joy_scale = 128
+        else:
+            self._joy_center = 0
+            self._joy_scale = XboxController.MAX_JOY_VAL
 
         self.LeftJoystickY = 0
         self.LeftJoystickX = 0
@@ -71,7 +95,7 @@ class XboxController(object):
         x = self.LeftJoystickX
         y = self.LeftJoystickY
         a = self.A
-        b = self.X # b=1, x=2
+        b = self.Y if self._is_ps4 else self.X # xbox: X button, ps4: square
         rb = self.RightBumper
         return [x, y, a, b, rb]
 
@@ -81,13 +105,13 @@ class XboxController(object):
             events = get_gamepad()
             for event in events:
                 if event.code == 'ABS_Y':
-                    self.LeftJoystickY = event.state / XboxController.MAX_JOY_VAL # normalize between -1 and 1
+                    self.LeftJoystickY = (event.state - self._joy_center) / self._joy_scale # normalize between -1 and 1
                 elif event.code == 'ABS_X':
-                    self.LeftJoystickX = event.state / XboxController.MAX_JOY_VAL # normalize between -1 and 1
+                    self.LeftJoystickX = (event.state - self._joy_center) / self._joy_scale # normalize between -1 and 1
                 elif event.code == 'ABS_RY':
-                    self.RightJoystickY = event.state / XboxController.MAX_JOY_VAL # normalize between -1 and 1
+                    self.RightJoystickY = (event.state - self._joy_center) / self._joy_scale # normalize between -1 and 1
                 elif event.code == 'ABS_RX':
-                    self.RightJoystickX = event.state / XboxController.MAX_JOY_VAL # normalize between -1 and 1
+                    self.RightJoystickX = (event.state - self._joy_center) / self._joy_scale # normalize between -1 and 1
                 elif event.code == 'ABS_Z':
                     self.LeftTrigger = event.state / XboxController.MAX_TRIG_VAL # normalize between 0 and 1
                 elif event.code == 'ABS_RZ':

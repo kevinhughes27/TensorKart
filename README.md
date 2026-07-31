@@ -29,10 +29,10 @@ Dependencies
 Recording Samples
 -----------------
 1. Start your emulator program (`mupen64plus`) and run Mario Kart 64
-2. Make sure you have a joystick connected and that `mupen64plus` is using the sdl input plugin (Xbox and wired PS4 controllers both work)
+2. Make sure you have a joystick connected and that `mupen64plus` is using the sdl input plugin (Xbox and wired PS4 controllers both work - on a PS4 controller square is the B button)
 3. Run `record.py`
 4. Make sure the graph responds to joystick input.
-5. Position the emulator window so that the image is captured by the program (top left corner)
+5. If `xdotool` is installed the program will find the emulator window automatically. Otherwise position the emulator window so that the image is captured by the program (top left corner)
 6. Press record and play through a level. You can trim some images off the front and back of the data you collect afterwards (by removing lines in `data.csv`).
 
 ![record](/screenshots/record_setup.png?raw=true)

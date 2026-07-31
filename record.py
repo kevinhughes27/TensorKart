@@ -16,7 +16,7 @@ import tkinter as tk
 import tkinter.ttk as ttk
 import tkinter.messagebox as tkMessageBox
 
-from utils import Screenshot, XboxController
+from utils import Screenshot, XboxController, find_emulator_window
 
 IMAGE_SIZE = (320, 240)
 IDLE_SAMPLE_RATE = 1500
@@ -29,7 +29,7 @@ class MainWindow():
 
     def __init__(self):
         self.root = tk.Tk()
-        self.sct = mss.mss()
+        self.sct = mss.MSS()
 
         self.root.title('Data Acquisition')
         self.root.geometry("660x325")
@@ -37,6 +37,9 @@ class MainWindow():
 
         # Init controller
         self.controller = XboxController()
+
+        # Figure out where to capture from
+        self.update_capture_offset()
 
          # Create GUI
         self.create_main_panel()
@@ -89,6 +92,10 @@ class MainWindow():
 
         self.fig = Figure(figsize=(4,3), dpi=80) # 320,240
         self.axes = self.fig.add_subplot(111)
+        self.axes.set_ylim(-1.1, 1.1)
+        # keep the line objects and just update their data (much faster than re-plotting)
+        self.lines = [self.axes.plot([0] * self.plotMem, color)[0]
+                      for color in ('r', 'b', 'g', 'k', 'y')]
 
 
     def on_timer(self):
@@ -112,10 +119,20 @@ class MainWindow():
             self.t += 1
 
 
+    def update_capture_offset(self):
+        # Locate the emulator window if possible, otherwise fall back
+        # to the static offsets (top left corner)
+        window_pos = find_emulator_window()
+        if window_pos:
+            self.offset_x, self.offset_y = window_pos
+        else:
+            self.offset_x = Screenshot.OFFSET_X
+            self.offset_y = Screenshot.OFFSET_Y
+
     def take_screenshot(self):
         # Get raw pixels from the screen
-        sct_img = self.sct.grab({  "top": Screenshot.OFFSET_Y,
-                                  "left": Screenshot.OFFSET_X,
+        sct_img = self.sct.grab({  "top": self.offset_y,
+                                  "left": self.offset_x,
                                  "width": Screenshot.SRC_W,
                                 "height": Screenshot.SRC_H})
 
@@ -144,12 +161,8 @@ class MainWindow():
 
         # Joystick
         x = np.asarray(self.plotData)
-        self.axes.clear()
-        self.axes.plot(range(0,self.plotMem), x[:,0], 'r')
-        self.axes.plot(range(0,self.plotMem), x[:,1], 'b')
-        self.axes.plot(range(0,self.plotMem), x[:,2], 'g')
-        self.axes.plot(range(0,self.plotMem), x[:,3], 'k')
-        self.axes.plot(range(0,self.plotMem), x[:,4], 'y')
+        for line, channel in zip(self.lines, x.T):
+            line.set_ydata(channel)
         self.PlotCanvas.draw()
 
 
@@ -179,6 +192,7 @@ class MainWindow():
 
 
     def start_recording(self):
+        self.update_capture_offset()
         should_record = True
 
         # check that a dir has been specified
