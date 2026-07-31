@@ -14,7 +14,7 @@ class Actor(object):
     def __init__(self):
         # Load in model from train.py and load in the trained weights
         self.model = create_model(pretrained=False)
-        self.model.load_state_dict(torch.load('model_weights.pt'))
+        self.model.load_state_dict(torch.load('model_weights.pt', map_location='cpu'))
         self.model.eval()
 
         # Init contoller for manual override

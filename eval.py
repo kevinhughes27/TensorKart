@@ -21,7 +21,7 @@ if __name__ == '__main__':
     y = np.load("data/y.npy")
 
     model = create_model(pretrained=False)
-    model.load_state_dict(torch.load('model_weights.pt'))
+    model.load_state_dict(torch.load('model_weights.pt', map_location='cpu'))
     model.eval()
 
     num_samples = int(sys.argv[1]) if len(sys.argv) > 1 else 500
