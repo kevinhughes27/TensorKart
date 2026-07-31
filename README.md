@@ -1,7 +1,7 @@
 TensorKart
 ==========
 
-self-driving MarioKart with TensorFlow
+self-driving MarioKart with PyTorch
 
 Driving a new (untrained) section of the Royal Raceway:
 
@@ -65,7 +65,7 @@ Run `python utils.py prepare samples/*` with an array of sample directories to b
 
 Training
 --------
-The `train.py` program will train a model using Google's TensorFlow framework and cuDNN for GPU acceleration. Training can take a while (~1 hour) depending on how much data you are training with and your system specs. The program will save the best model from all epochs of training to disk when it is done. 
+The `train.py` program will train a model using PyTorch and [timm](https://github.com/huggingface/pytorch-image-models). Instead of training from scratch, the model uses transfer learning: a MobileNetV3 backbone pretrained on ImageNet with a small linear head for the joystick output. Training runs in two phases - first only the head is trained with the backbone frozen, then the whole model is fine-tuned with a lower learning rate. The program will save the best model from all epochs of training to disk when it is done. 
  
 
 Play

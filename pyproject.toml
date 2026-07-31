@@ -11,5 +11,6 @@ dependencies = [
     "scikit-image",
     "termcolor",
     "pillow",
-    "tensorflow",
+    "torch>=2.13.0",
+    "timm>=1.0.28",
 ]

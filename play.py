@@ -3,18 +3,19 @@
 from utils import resize_image, XboxController
 from termcolor import cprint
 
-import gym
+import gymnasium as gym
 import gym_mupen64plus
-from train import create_model
-import numpy as np
+from train import create_model, output_activation
+import torch
 
 # Play
 class Actor(object):
 
     def __init__(self):
         # Load in model from train.py and load in the trained weights
-        self.model = create_model(keep_prob=1) # no dropout
-        self.model.load_weights('model_weights.weights.h5')
+        self.model = create_model(pretrained=False)
+        self.model.load_state_dict(torch.load('model_weights.pt'))
+        self.model.eval()
 
         # Init contoller for manual override
         self.real_controller = XboxController()
@@ -27,9 +28,10 @@ class Actor(object):
         if not manual_override:
             ## Look
             vec = resize_image(obs)
-            vec = np.expand_dims(vec, axis=0) # expand dimensions for predict, it wants (1,66,200,3) not (66, 200, 3)
+            vec = torch.from_numpy(vec).permute(2, 0, 1).unsqueeze(0) # (66,200,3) -> (1,3,66,200)
             ## Think
-            joystick = self.model.predict(vec, batch_size=1)[0]
+            with torch.no_grad():
+                joystick = output_activation(self.model(vec))[0].numpy()
 
         else:
             joystick = self.real_controller.read()
@@ -59,7 +61,7 @@ class Actor(object):
 if __name__ == '__main__':
     env = gym.make('Mario-Kart-Royal-Raceway-v0')
 
-    obs = env.reset()
+    obs, info = env.reset()
     env.render()
     print('env ready!')
 
@@ -71,13 +73,14 @@ if __name__ == '__main__':
     end_episode = False
     while not end_episode:
         action = actor.get_action(obs)
-        obs, reward, end_episode, info = env.step(action)
+        obs, reward, terminated, truncated, info = env.step(action)
+        end_episode = terminated or truncated
         env.render()
         total_reward += reward
 
     print('end episode... total reward: ' + str(total_reward))
 
-    obs = env.reset()
+    obs, info = env.reset()
     print('env ready!')
 
     input('press <ENTER> to quit')
