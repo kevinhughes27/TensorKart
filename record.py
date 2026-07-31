@@ -39,6 +39,8 @@ class MainWindow():
         self.controller = XboxController()
 
         # Figure out where to capture from
+        self.offset_x = None
+        self.offset_y = None
         self.update_capture_offset()
 
          # Create GUI
@@ -101,8 +103,9 @@ class MainWindow():
     def on_timer(self):
         self.poll()
 
-        # stop drawing if recording to avoid slow downs
+        # stop drawing (and window hunting) if recording to avoid slow downs
         if self.recording == False:
+            self.update_capture_offset()
             self.draw()
 
         if not self.pause_timer:
@@ -123,14 +126,12 @@ class MainWindow():
         # Locate the emulator window if possible, otherwise fall back
         # to the static offsets (top left corner)
         window_pos = find_emulator_window()
-        if window_pos:
+        if window_pos is None:
+            window_pos = (Screenshot.OFFSET_X, Screenshot.OFFSET_Y)
+
+        if window_pos != (self.offset_x, self.offset_y):
             self.offset_x, self.offset_y = window_pos
-            print(f'Emulator window found at {window_pos}')
-        else:
-            self.offset_x = Screenshot.OFFSET_X
-            self.offset_y = Screenshot.OFFSET_Y
-            print('Emulator window not found, capturing from '
-                  f'{self.offset_x},{self.offset_y} (top left corner)')
+            print(f'Capturing from {self.offset_x},{self.offset_y}')
 
     def take_screenshot(self):
         # Get raw pixels from the screen
