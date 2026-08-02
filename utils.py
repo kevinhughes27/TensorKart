@@ -12,8 +12,9 @@ import matplotlib.image as mpimg
 
 from inputs import get_gamepad, devices
 import math
-import subprocess
 import threading
+
+from emulator import find_emulator_window # re-exported (lives in emulator.py now)
 
 
 def resize_image(img):
@@ -28,36 +29,6 @@ class Screenshot(object):
 
     OFFSET_X = 0
     OFFSET_Y = 0
-
-
-def find_emulator_window():
-    """Locate the mupen64plus game window (X11 only, needs xdotool and
-    xwininfo) so the screenshot lines up without having to drag the
-    window anywhere"""
-    try:
-        # there may be several matches (menus, dialogs) - the game
-        # window is the one rendering at the capture resolution
-        window_ids = subprocess.check_output(
-            "xdotool search --onlyvisible --name 'Mupen64Plus'",
-            shell=True, universal_newlines=True).split()
-
-        for window_id in window_ids:
-            info = subprocess.check_output(['xwininfo', '-id', window_id],
-                                           universal_newlines=True)
-            geometry = {}
-            for line in info.splitlines():
-                key, _, value = line.partition(':')
-                key = key.strip()
-                if key in ('Absolute upper-left X', 'Absolute upper-left Y', 'Width', 'Height'):
-                    geometry[key] = int(value.strip())
-
-            if (geometry.get('Width') == Screenshot.SRC_W and
-                    geometry.get('Height') == Screenshot.SRC_H):
-                return (geometry['Absolute upper-left X'],
-                        geometry['Absolute upper-left Y'])
-    except Exception:
-        pass
-    return None
 
 
 class Sample:

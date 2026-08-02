@@ -23,17 +23,17 @@ Dependencies
 ------------
 * `python` and [`uv`](https://docs.astral.sh/uv/) then run `uv sync`
 * `mupen64plus` (install via apt-get)
-* for `play.py`: [`gym-mupen64plus`](https://github.com/kevinhughes27/gym-mupen64plus) (modernized fork) - `uv pip install git+https://github.com/kevinhughes27/gym-mupen64plus`
+* for `play.py`: [`mupen64plus-input-bot`](https://github.com/kevinhughes27/mupen64plus-input-bot) built and installed (`make all && sudo make install`) - the input plugin that lets a program drive the emulator
+* `xdotool` and `xwininfo` (to locate the emulator window for screen capture)
 
 
 Recording Samples
 -----------------
-1. Start your emulator program (`mupen64plus`) and run Mario Kart 64
-2. Make sure you have a joystick connected and that `mupen64plus` is using the sdl input plugin (Xbox and wired PS4 controllers both work - on a PS4 controller square is the B button)
-3. Run `record.py`
-4. Make sure the graph responds to joystick input.
-5. If `xdotool` is installed the program will find the emulator window automatically. Otherwise position the emulator window so that the image is captured by the program (top left corner)
-6. Press record and play through a level. You can trim some images off the front and back of the data you collect afterwards (by removing lines in `data.csv`).
+1. Make sure you have a joystick connected (Xbox and wired PS4 controllers both work - on a PS4 controller square is the B button)
+2. Run `record.py` - it starts `mupen64plus` for you in a window (with the default SDL input plugin, so your controller drives the game)
+3. Make sure the graph responds to joystick input.
+4. If `xdotool` is installed the program will find the emulator window automatically. Otherwise position the emulator window so that the image is captured by the program (top left corner)
+5. Press record and play through a level. You can trim some images off the front and back of the data you collect afterwards (by removing lines in `data.csv`).
 
 ![record](/screenshots/record_setup.png?raw=true)
 
@@ -71,12 +71,12 @@ The `train.py` program will train a model using PyTorch and [timm](https://githu
 
 Play
 ----
-The `play.py` program will use the [`gym-mupen64plus`](https://github.com/bzier/gym-mupen64plus) environment to execute the trained agent against the MarioKart environment. The environment will provide the screenshots of the emulator. These images will be sent to the model to acquire the joystick command to send. The AI joystick commands can be overridden by holding the 'LB' button on the controller.
+Run `play.py`. It starts `mupen64plus` in a window at real-time speed using the input-bot plugin, which polls the `ControllerServer` in `emulator.py` for controller state once per emulated frame - so the agent loop runs in lock step with the emulator. The AI starts off: drive the menus yourself with the controller (start a Time Trial race), then tap 'LB' to toggle the AI on/off. Frames are captured off the screen, so keep the emulator window uncovered while the AI is driving. The emulator is launched in a normal window at real-time speed on purpose: the point is to watch the model drive.
 
 
 Future Work / Ideas:
 --------------------
-* Add a reinforcement layer based on lap time or other metrics so that the AI can start to teach itself now that it has a baseline. The environment currently provides a reward signal of `-1` per time-step, which gives the AI agent a metric to calculate its performance during each race (episode), the goal being to maximize reward and therefore, minimize overall race duration.
+* Add a reinforcement layer based on lap time or other metrics so that the AI can start to teach itself now that it has a baseline. Two promising ingredients: mupen64plus save states for instant reset to race start (the core exposes `M64CMD_STATE_LOAD` and the input-bot plugin already has a handle to the core library), and [`stable-retro`](https://github.com/Farama-Foundation/stable-retro) (maintained gym-retro fork with an N64 core: save states, RAM reads for reward, frame-exact headless stepping) if RL ever becomes the focus.
 * Could also have a shadow mode where the AI just draws out what it would do rather than sending actions. A real self driving car would have this and use it a lot before letting it take the wheel.
 * Deep learning is all about data; perhaps a community could form around collecting a large amount of data and pushing the performance of this AI.
 

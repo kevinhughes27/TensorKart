@@ -8,16 +8,13 @@ explicit = true
 [tool.uv.sources]
 torch = { index = "pytorch-cu126" }
 torchvision = { index = "pytorch-cu126" }
-gym-mupen64plus = { path = "gym-mupen64plus", editable = true }
 
 [project]
 name = "tensorkart"
 version = "0.2.0"
-description = "self-driving MarioKart with TensorFlow"
+description = "self-driving MarioKart with PyTorch"
 requires-python = ">=3.10,<3.13"
 dependencies = [
-    "gymnasium",
-    "gym-mupen64plus",
     "inputs",
     "mss",
     "matplotlib",

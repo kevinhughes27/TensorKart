@@ -1,5 +1,12 @@
 #!/usr/bin/env python
 
+"""Record training samples: screenshots of the emulator paired with
+your controller input.
+
+Starts mupen64plus for you in a normal window (default SDL input
+plugin, so your gamepad works).
+"""
+
 import numpy as np
 import os
 import shutil
@@ -16,7 +23,10 @@ import tkinter as tk
 import tkinter.ttk as ttk
 import tkinter.messagebox as tkMessageBox
 
+from emulator import launch_emulator
 from utils import Screenshot, XboxController, find_emulator_window
+
+ROM_PATH = 'MarioKart64.z64'
 
 IMAGE_SIZE = (320, 240)
 IDLE_SAMPLE_RATE = 1500
@@ -229,4 +239,7 @@ class MainWindow():
 
 
 if __name__ == '__main__':
+    # default input plugin (SDL) so the real controller drives the game
+    launch_emulator(ROM_PATH)
+
     app = MainWindow()

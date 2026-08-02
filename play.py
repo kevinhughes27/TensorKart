@@ -1,14 +1,32 @@
 #!/usr/bin/env python
 
-from utils import resize_image, XboxController
+"""Play: run the trained model against live Mario Kart 64.
+
+Launches mupen64plus in a normal window at real-time speed with the
+input-bot plugin, so you can watch the model drive. You drive the menus
+yourself with the controller (the AI starts OFF) - line up a Time Trial
+race, then tap LB to toggle the AI on/off.
+
+Keep the emulator window uncovered: frames are captured off the screen.
+"""
+
+import torch
 from termcolor import cprint
 
-import gymnasium as gym
-import gym_mupen64plus
+from emulator import (INPUT_BOT_PLUGIN, ControllerServer, ControllerState,
+                      EmulatorWindow, launch_emulator)
 from train import create_model, output_activation
-import torch
+from utils import resize_image, XboxController
 
-# Play
+ROM_PATH = 'MarioKart64.z64'
+
+# Each AI action is held for this many emulated frames (the model was
+# trained on ~200ms samples; 5 frames at 60fps is ~83ms). Manual input
+# is served fresh every frame so driving the menus doesn't feel laggy.
+AI_FRAME_SKIP = 5
+MANUAL_FRAME_SKIP = 1
+
+
 class Actor(object):
 
     def __init__(self):
@@ -69,51 +87,26 @@ class Actor(object):
 
 
 if __name__ == '__main__':
-    # Which track to race and who to drive as.
-    # Courses: Luigi-Raceway, Moo-Moo-Farm, Koopa-Troopa-Beach, Kalimari-Desert,
-    #          Toads-Turnpike, Frappe-Snowland, Choco-Mountain, Mario-Raceway,
-    #          Wario-Stadium, Sherbet-Land, Royal-Raceway, Bowsers-Castle,
-    #          DKs-Jungle-Parkway, Yoshi-Valley, Banshee-Boardwalk, Rainbow-Road
-    # Characters: mario, luigi, peach, toad, yoshi, d.k., wario, bowser
-    COURSE = 'Luigi-Raceway'
-    CHARACTER = 'mario'
-
-    # Whether to open a second window showing the agent's view. Off by
-    # default: you can watch the emulator itself, and another window on
-    # top of it would corrupt the screen capture.
-    RENDER = False
-
-    # Whether the env drives the menus automatically (currently
-    # unreliable - see docs/menu-navigation.md in gym-mupen64plus) or
-    # you do them yourself (the AI starts off - toggle it with LB).
-    SKIP_MENU = True
-
-    env = gym.make(f'Mario-Kart-{COURSE}-v0', character=CHARACTER, skip_menu=SKIP_MENU)
-
-    obs, info = env.reset()
-    if RENDER:
-        env.render()
-    print('env ready!')
-
     actor = Actor()
     print('actor ready!')
 
-    print('beginning episode loop')
-    total_reward = 0
-    end_episode = False
-    while not end_episode:
-        action = actor.get_action(obs)
-        obs, reward, terminated, truncated, info = env.step(action)
-        end_episode = terminated or truncated
-        if RENDER:
-            env.render()
-        total_reward += reward
+    server = ControllerServer(frame_skip=MANUAL_FRAME_SKIP)
+    emulator_process = launch_emulator(ROM_PATH, input_plugin=INPUT_BOT_PLUGIN)
+    window = EmulatorWindow() # blocks until the emulator window exists
 
-    print('end episode... total reward: ' + str(total_reward))
+    print('ready - drive the menus, start a race, then tap LB to toggle the AI')
 
-    obs, info = env.reset()
-    print('env ready!')
-
-    input('press <ENTER> to quit')
-
-    env.close()
+    try:
+        obs = window.grab()
+        while emulator_process.poll() is None:
+            action = actor.get_action(obs)
+            server.frame_skip = MANUAL_FRAME_SKIP if not actor.ai_enabled else AI_FRAME_SKIP
+            server.send_controls(ControllerState(action))
+            obs = window.grab()
+        print('emulator closed')
+    except KeyboardInterrupt:
+        pass
+    finally:
+        print('shutting down...')
+        server.shutdown()
+        emulator_process.terminate()
