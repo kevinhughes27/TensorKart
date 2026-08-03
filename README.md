@@ -63,21 +63,30 @@ Run `python utils.py prepare samples/*` with an array of sample directories to b
   [4] button rb
 ```
 
+`episodes` is the recording-session name per frame, so training can hold out whole episodes for validation (frames from one race are near-duplicates; a random split would leak them into both train and val).
+
 
 Training
 --------
-The `train.py` program will train a model using PyTorch and [timm](https://github.com/huggingface/pytorch-image-models). Instead of training from scratch, the model uses transfer learning: a MobileNetV3 backbone pretrained on ImageNet with a small linear head for the joystick output. Training runs in two phases - first only the head is trained with the backbone frozen, then the whole model is fine-tuned with a lower learning rate. The program will save the best model from all epochs of training to disk when it is done. 
+The `train.py` program will train a model using PyTorch and [timm](https://github.com/huggingface/pytorch-image-models). Instead of training from scratch, the model uses transfer learning: a MobileNetV3 backbone pretrained on ImageNet with a small linear head for the joystick output. Training runs in two phases - first only the head is trained with the backbone frozen, then the whole model is fine-tuned with a lower learning rate. The program will save the best model from all epochs of training to disk when it is done.
+
+Validation is a held-out episode (`VAL_EPISODES` in train.py), not a random split. Training data is augmented on the fly with horizontal flips (steering negated - this also balances the left-heavy recorded tracks) and brightness/contrast jitter.
+
+`eval.py` scores the trained model against the recorded samples, with a per-episode breakdown and a |model - human| disagreement histogram (the tail of that histogram is where the model needs more data).
  
 
 Play
 ----
 Run `play.py`. It starts `mupen64plus` in a window at real-time speed using the input-bot plugin, which polls the `ControllerServer` in `emulator.py` for controller state once per emulated frame - so the agent loop runs in lock step with the emulator. The AI starts off: drive the menus yourself with the controller (start a Time Trial race), then tap 'LB' to toggle the AI on/off. Frames are captured off the screen, so keep the emulator window uncovered while the AI is driving. The emulator is launched in a normal window at real-time speed on purpose: the point is to watch the model drive.
 
+Tap 'RB' to toggle recording. Frames, applied inputs, and the model's shadow predictions (what the AI *would* have done) are saved to `samples/<timestamp>_play/` in the same format as `record.py` - re-run prepare and train to fold them in. Recording yourself rescuing the AI when it fails is the point: behavior cloning only learns states the human visits, so it has no idea how to recover once it drifts off line. Expert corrections in states the *model* visits are exactly the data that fixes this (DAgger). Frames are recorded at the AI's control cadence, so train and play cadence match by construction.
+
 
 Future Work / Ideas:
 --------------------
+* Temporal model: stack the last few frames (or a recurrent head) so the model can perceive speed and rotation - a single frame is ambiguous about how much steering a turn needs.
+* Architecture experiments, judged against the held-out episode: a spatial-softmax head (classification backbones global-pool away the "where" information steering needs) and a small from-scratch CNN as a baseline challenger.
 * Add a reinforcement layer based on lap time or other metrics so that the AI can start to teach itself now that it has a baseline. Two promising ingredients: mupen64plus save states for instant reset to race start (the core exposes `M64CMD_STATE_LOAD` and the input-bot plugin already has a handle to the core library), and [`stable-retro`](https://github.com/Farama-Foundation/stable-retro) (maintained gym-retro fork with an N64 core: save states, RAM reads for reward, frame-exact headless stepping) if RL ever becomes the focus.
-* Could also have a shadow mode where the AI just draws out what it would do rather than sending actions. A real self driving car would have this and use it a lot before letting it take the wheel.
 * Deep learning is all about data; perhaps a community could form around collecting a large amount of data and pushing the performance of this AI.
 
 

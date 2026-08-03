@@ -6,7 +6,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 import timm
 
-from torch.utils.data import DataLoader, TensorDataset, random_split
+from torch.utils.data import DataLoader, Dataset
 
 from utils import Sample
 
@@ -48,12 +48,54 @@ def customized_loss(y_pred, y_true):
     return axes + buttons
 
 
+class DrivingDataset(Dataset):
+    """Raw uint8 frames with augmentation applied on the fly.
+
+    Augmentation is limited to a horizontal flip (with the steering
+    axis negated) and brightness/contrast jitter. No translation or
+    cropping - the steering label is tied to the camera geometry.
+    The flip also balances the data: the recorded tracks turn left
+    far more often than right.
+    """
+
+    def __init__(self, X, y, augment=False):
+        self.X = torch.from_numpy(X) # uint8 (N, H, W, C)
+        self.y = torch.from_numpy(y.astype(np.float32))
+        self.augment = augment
+
+    def __len__(self):
+        return len(self.X)
+
+    def __getitem__(self, i):
+        x = self.X[i].float() / 255.0
+        y = self.y[i].clone()
+        if self.augment:
+            if torch.rand(()) < 0.5:
+                x = torch.flip(x, dims=[1]) # mirror left/right
+                y[0] = -y[0]                # steering negates
+            if torch.rand(()) < 0.8:
+                brightness = 1.0 + 0.4 * (torch.rand(()) - 0.5)
+                contrast = 1.0 + 0.4 * (torch.rand(()) - 0.5)
+                x = ((x - 0.5) * contrast + 0.5) * brightness
+                x = x.clamp(0.0, 1.0)
+        return x.permute(2, 0, 1), y
+
+
 if __name__ == '__main__':
     # Load Training Data
-    x_train = np.load("data/X.npy")
-    y_train = np.load("data/y.npy")
+    x_all = np.load("data/X.npy")
+    y_all = np.load("data/y.npy")
+    episodes = np.load("data/episodes.npy") # re-run `python utils.py prepare samples/*` if missing
 
-    print(x_train.shape[0], 'train samples')
+    # Hold out whole episodes for validation. Frames from the same
+    # race are near-duplicates, so a random split leaks them into both
+    # train and val and the val loss lies. A held-out race is the
+    # honest offline proxy for live driving.
+    VAL_EPISODES = ['luigi_raceway4']
+    val_mask = np.isin(episodes, VAL_EPISODES)
+
+    print(x_all.shape[0], 'samples -', int((~val_mask).sum()), 'train,',
+          int(val_mask.sum()), 'val from', VAL_EPISODES)
 
     # Training loop variables
     epochs = 100
@@ -63,11 +105,8 @@ if __name__ == '__main__':
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
     model = create_model().to(device)
 
-    X = torch.from_numpy(x_train).permute(0, 3, 1, 2).float() / 255.0
-    y = torch.from_numpy(y_train.astype(np.float32))
-    dataset = TensorDataset(X, y)
-    val_size = int(0.1 * len(dataset))
-    train_set, val_set = random_split(dataset, [len(dataset) - val_size, val_size], generator=torch.Generator().manual_seed(42))
+    train_set = DrivingDataset(x_all[~val_mask], y_all[~val_mask], augment=True)
+    val_set = DrivingDataset(x_all[val_mask], y_all[val_mask])
     train_loader = DataLoader(train_set, batch_size=batch_size, shuffle=True)
     val_loader = DataLoader(val_set, batch_size=batch_size)
 

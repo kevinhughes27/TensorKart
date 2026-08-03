@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+import os
 import sys
 
 import numpy as np
@@ -195,6 +196,7 @@ def prepare(samples):
 
     X = np.empty(shape=(num_samples, Sample.IMG_H, Sample.IMG_W, Sample.IMG_D), dtype=np.uint8)
     y = []
+    episodes = [] # episode (recording session) name per sample
 
     idx = 0
     for sample in samples:
@@ -203,8 +205,12 @@ def prepare(samples):
         # load sample
         image_files, joystick_values = load_sample(sample)
 
-        # add joystick values to y
+        # add joystick values to y, and remember which episode each
+        # frame came from so train.py can hold out whole episodes
+        # (frames from one race are near-duplicates - a random split
+        # would leak them into both train and val)
         y.append(joystick_values)
+        episodes += [os.path.basename(os.path.normpath(sample))] * len(image_files)
 
         # load, prepare and add images to X
         for image_file in image_files:
@@ -217,6 +223,7 @@ def prepare(samples):
 
     np.save("data/X", X)
     np.save("data/y", y)
+    np.save("data/episodes", np.array(episodes))
 
     print("Done!")
     return
